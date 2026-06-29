@@ -326,4 +326,65 @@ blockquote {
   .free-weekend-grid {
     grid-template-columns: 1fr;
   }
+}.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-nav {
+  flex: 1;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 18px;
+  border-top: 1px solid rgba(45, 37, 32, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  font-size: 11px;
+  color: var(--color-muted);
+  opacity: .8;
+}
+
+.sidebar-footer small:first-child {
+  color: var(--color-santiago-red);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar-footer {
+  margin-top: 40px;
+  padding: 18px;
+  border-top: 1px solid rgba(45, 37, 32, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-muted);
+}
+
+.sidebar-footer small {
+  color: var(--color-santiago-red);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.sidebar-footer strong {
+  font-family: var(--font-title);
+  color: var(--color-ink);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.sidebar-footer span {
+  font-size: 12px;
+  font-style: italic;
 }
