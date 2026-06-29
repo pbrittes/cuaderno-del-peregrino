@@ -1,0 +1,22 @@
+:root {
+  --color-paper: #f7f1e6;
+  --color-paper-soft: #fbf7ef;
+  --color-ink: #2d2520;
+  --color-muted: #756a60;
+
+  --color-santiago-red: #a1222d;
+  --color-santiago-red-dark: #751822;
+
+  --color-atlantic: #2d5c78;
+  --color-galicia: #607d5b;
+  --color-shell-gold: #c59a4a;
+
+  --radius-lg: 28px;
+  --radius-md: 18px;
+
+  --shadow-soft: 0 24px 70px rgba(45, 37, 32, 0.12);
+  --shadow-card: 0 14px 34px rgba(45, 37, 32, 0.08);
+
+  --font-title: Georgia, 'Times New Roman', serif;
+  --font-ui: Inter, Arial, sans-serif;
+}
