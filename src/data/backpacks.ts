@@ -1,6 +1,6 @@
 export type Pilgrim = 'Pri' | 'Tan' | 'Deia'
 
-export type GearStatus = 'tem' | 'comprar' | 'trocar' | 'testar' | 'dispensado'
+export type GearStatus = 'tem' | 'comprar' | 'testar' | 'dispensado'
 
 export type GearCategory =
   | 'mochila'
@@ -38,9 +38,11 @@ export const gearItems: GearItem[] = [
     category: 'calçado',
     weight: 670,
     status: {
-      Pri: 'trocar',
-      Tan: 'tem',
-      Deia: 'tem',
+      status: {
+  Pri: 'tem',
+  Tan: 'tem',
+  Deia: 'tem',
+},
     },
   },
   {

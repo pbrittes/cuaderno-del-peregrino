@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { ShellLogo } from './ShellLogo'
 
-type Page = 'home' | 'agenda'
+type Page = 'home' | 'agenda' | 'mochila'
 
 type AppLayoutProps = {
   page: Page
