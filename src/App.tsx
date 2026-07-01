@@ -8,7 +8,7 @@ import { Mochila } from './pages/Mochila/Mochila'
 
 type Page = 'home' | 'agenda' | 'mochila'
 
-function App() {
+export default function App() {
   const [page, setPage] = useState<Page>('home')
 
   return (
@@ -19,5 +19,3 @@ function App() {
     </AppLayout>
   )
 }
-
-export default App

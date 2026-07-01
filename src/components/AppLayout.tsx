@@ -15,7 +15,11 @@ const menuItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: 'mochila', label: 'Mochila', icon: '🎒' },
 ]
 
-export function AppLayout({ page, onNavigate, children }: AppLayoutProps) {
+export function AppLayout({
+  page,
+  onNavigate,
+  children,
+}: AppLayoutProps) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -40,12 +44,20 @@ export function AppLayout({ page, onNavigate, children }: AppLayoutProps) {
               </button>
             ))}
           </nav>
+
+          {/* Rodapé para celular */}
+          <div className="sidebar-footer-mobile">
+            <small>Expedición Santiago 2026</small>
+            <strong>Edición II</strong>
+            <span>Preparando el Equipaje</span>
+          </div>
         </div>
 
+        {/* Rodapé desktop */}
         <footer className="sidebar-footer">
           <small>Expedición Santiago 2026</small>
-          <strong>Edición I</strong>
-          <span>El Primer Paso</span>
+          <strong>Edición II</strong>
+          <span>Preparando el Equipaje</span>
         </footer>
       </aside>
 
