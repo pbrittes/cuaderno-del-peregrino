@@ -80,4 +80,27 @@ export function buildTimeline(events: AgendaEvent[]): TimelineItem[] {
   return items.sort(
     (a, b) => toDate(a.date).getTime() - toDate(b.date).getTime(),
   )
+}export function getDaysUntilDeparture(
+  departureDate = '2026-10-30',
+) {
+  const today = new Date()
+  const departure = toDate(departureDate)
+
+  const diff = departure.getTime() - today.getTime()
+
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+}
+
+export function getNextEvent(
+  events: AgendaEvent[],
+) {
+  const today = new Date()
+
+  return events
+    .filter((event) => toDate(event.date) >= today)
+    .sort(
+      (a, b) =>
+        toDate(a.date).getTime() -
+        toDate(b.date).getTime(),
+    )[0]
 }
