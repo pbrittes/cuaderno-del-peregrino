@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import {
-  gearItems,
   type GearCategory,
   type GearStatus,
   type Pilgrim,
 } from '../../data/backpacks'
 import { formatKg } from '../../data/backpackEngine'
+import { useBackpackItems } from '../../data/backpackStore'
 
 const pilgrims: Pilgrim[] = ['Pri', 'Tan', 'Deia']
 
@@ -23,8 +23,13 @@ function getNextStatus(status: GearStatus): GearStatus {
   return 'comprar'
 }
 
+function itemLabel(name: string, quantity: number) {
+  return quantity > 1 ? `${quantity} × ${name}` : name
+}
+
 export function Mochila() {
-  const [items, setItems] = useState(gearItems)
+  const { items, updateStatus } = useBackpackItems()
+
   const [openCategories, setOpenCategories] = useState<GearCategory[]>([
     'mochila',
     'calçado',
@@ -39,19 +44,11 @@ export function Mochila() {
   const categories = Array.from(new Set(items.map((item) => item.category)))
 
   function toggleStatus(itemId: string, pilgrim: Pilgrim) {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              status: {
-                ...item.status,
-                [pilgrim]: getNextStatus(item.status[pilgrim]),
-              },
-            }
-          : item,
-      ),
-    )
+    const item = items.find((currentItem) => currentItem.id === itemId)
+
+    if (!item) return
+
+    updateStatus(itemId, pilgrim, getNextStatus(item.status[pilgrim]))
   }
 
   function toggleCategory(category: GearCategory) {
@@ -97,7 +94,7 @@ export function Mochila() {
                 categoryItems.map((item) => (
                   <article className="gear-table-row" key={item.id}>
                     <div className="gear-item-info">
-                      <strong>{item.name}</strong>
+                      <strong>{itemLabel(item.name, item.quantity)}</strong>
                       <small>{formatKg(item.weight)}</small>
                     </div>
 
