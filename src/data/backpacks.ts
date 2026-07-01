@@ -38,11 +38,9 @@ export const gearItems: GearItem[] = [
     category: 'calçado',
     weight: 670,
     status: {
-      status: {
-  Pri: 'tem',
-  Tan: 'tem',
-  Deia: 'tem',
-},
+      Pri: 'tem',
+      Tan: 'tem',
+      Deia: 'tem',
     },
   },
   {

@@ -9,11 +9,11 @@ type AppLayoutProps = {
   children: ReactNode
 }
 
-const menuItems = [
+const menuItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: 'home', label: 'Cuaderno', icon: '⌂' },
   { id: 'agenda', label: 'Agenda', icon: '◷' },
   { id: 'mochila', label: 'Mochila', icon: '🎒' },
-] as const
+]
 
 export function AppLayout({ page, onNavigate, children }: AppLayoutProps) {
   return (
