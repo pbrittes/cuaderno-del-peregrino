@@ -728,4 +728,60 @@ blockquote {
 
 .gear-category:first-child .gear-category-title {
   border-top: none;
+}@media (max-width: 700px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    height: auto;
+    min-height: auto;
+    position: static;
+    padding: 18px;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .app-content {
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  .home-dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .countdown-card,
+  .next-event-card,
+  .backpack-card,
+  .agenda-header {
+    padding: 24px;
+  }
+
+  .gear-table {
+    overflow-x: auto;
+  }
+
+  .gear-table-header,
+  .gear-table-row {
+    grid-template-columns: minmax(180px, 1fr) 64px repeat(3, 48px);
+    min-width: 520px;
+    padding: 14px 16px;
+  }
+
+  .status-button {
+    width: 36px;
+    height: 36px;
+    font-size: 17px;
+  }
+
+  .countdown-number {
+    font-size: 96px;
+  }
 }
