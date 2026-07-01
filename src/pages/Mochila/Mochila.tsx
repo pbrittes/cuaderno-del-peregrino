@@ -1,5 +1,10 @@
 import { useState } from 'react'
-import { gearItems, type GearCategory, type GearStatus, type Pilgrim } from '../../data/backpacks'
+import {
+  gearItems,
+  type GearCategory,
+  type GearStatus,
+  type Pilgrim,
+} from '../../data/backpacks'
 import { formatKg } from '../../data/backpackEngine'
 
 const pilgrims: Pilgrim[] = ['Pri', 'Tan', 'Deia']
@@ -9,13 +14,6 @@ const statusIcon: Record<GearStatus, string> = {
   testar: '🧪',
   tem: '✅',
   dispensado: '—',
-}
-
-const statusTitle: Record<GearStatus, string> = {
-  comprar: 'Comprar',
-  testar: 'Testar',
-  tem: 'Tenho',
-  dispensado: 'Dispensado',
 }
 
 function getNextStatus(status: GearStatus): GearStatus {
@@ -98,17 +96,30 @@ export function Mochila() {
               {isOpen &&
                 categoryItems.map((item) => (
                   <article className="gear-table-row" key={item.id}>
-                    <div>
+                    <div className="gear-item-info">
                       <strong>{item.name}</strong>
+                      <small>{formatKg(item.weight)}</small>
                     </div>
 
                     <span className="gear-weight">{formatKg(item.weight)}</span>
 
+                    <div className="gear-mobile-statuses">
+                      {pilgrims.map((pilgrim) => (
+                        <button
+                          key={pilgrim}
+                          className={`status-button ${item.status[pilgrim]}`}
+                          onClick={() => toggleStatus(item.id, pilgrim)}
+                        >
+                          <span>{pilgrim}</span>
+                          <strong>{statusIcon[item.status[pilgrim]]}</strong>
+                        </button>
+                      ))}
+                    </div>
+
                     {pilgrims.map((pilgrim) => (
                       <button
                         key={pilgrim}
-                        className={`status-button ${item.status[pilgrim]}`}
-                        title={statusTitle[item.status[pilgrim]]}
+                        className={`status-button desktop-status ${item.status[pilgrim]}`}
                         onClick={() => toggleStatus(item.id, pilgrim)}
                       >
                         {statusIcon[item.status[pilgrim]]}
