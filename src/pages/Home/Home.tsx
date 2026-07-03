@@ -32,7 +32,6 @@ export function Home() {
 
   const nextMissions = missions
     .filter((mission) => mission.status !== 'done')
-    .slice(0, 3)
 
   const backpackStatus = useMemo(() => {
     const pilgrims = ['Pri', 'Tan', 'Deia'] as const
