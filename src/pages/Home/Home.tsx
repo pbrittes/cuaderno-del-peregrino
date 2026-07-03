@@ -30,8 +30,9 @@ export function Home() {
   const [showMissionForm, setShowMissionForm] = useState(false)
   const [newMission, setNewMission] = useState('')
 
-  const nextMissions = missions
-    .filter((mission) => mission.status !== 'done')
+  const nextMissions = missions.filter(
+    (mission) => mission.status !== 'done',
+  )
 
   const backpackStatus = useMemo(() => {
     const pilgrims = ['Pri', 'Tan', 'Deia'] as const
