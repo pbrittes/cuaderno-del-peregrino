@@ -1,5 +1,7 @@
-import { agendaEvents } from '../../data/agenda'
+import { useState } from 'react'
+import { useAgendaStore } from '../../data/agendaStore'
 import { buildTimeline } from '../../data/expeditionEngine'
+import type { AgendaEvent } from '../../data/agenda'
 
 const itemIcon = {
   treino: '🥾',
@@ -31,19 +33,113 @@ function formatMonth(date: string) {
 }
 
 export function Agenda() {
-  const timeline = buildTimeline(agendaEvents)
+  const { events, createEvent, updateEvent, removeEvent } = useAgendaStore()
+  const timeline = buildTimeline(events)
+
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [title, setTitle] = useState('')
+  const [date, setDate] = useState('')
+  const [type, setType] = useState<AgendaEvent['type']>('treino')
 
   let currentMonth = ''
+
+  function resetForm() {
+    setTitle('')
+    setDate('')
+    setType('treino')
+    setEditingId(null)
+    setShowForm(false)
+  }
+
+  function handleSaveEvent() {
+    if (editingId) {
+      updateEvent(editingId, { title, date, type })
+    } else {
+      createEvent(title, date, type)
+    }
+
+    resetForm()
+  }
+
+  function handleEditEvent(item: AgendaEvent) {
+    setEditingId(item.id)
+    setTitle(item.title)
+    setDate(item.date)
+    setType(item.type)
+    setShowForm(true)
+  }
+
+  function handleRemoveEvent(id: string, title: string) {
+    const confirmed = window.confirm(`Excluir "${title}" da agenda?`)
+
+    if (confirmed) {
+      removeEvent(id)
+    }
+  }
 
   return (
     <main className="agenda-page">
       <section className="agenda-header">
-        <p className="eyebrow">Agenda Mestre</p>
-        <h2>Compromissos e janelas livres</h2>
+        <div className="agenda-header-top">
+          <div>
+            <p className="eyebrow">Agenda Mestre</p>
+            <h2>Compromissos e janelas livres</h2>
+          </div>
+
+          <button
+            className="mission-add-button"
+            onClick={() => {
+              resetForm()
+              setShowForm(true)
+            }}
+          >
+            +
+          </button>
+        </div>
+
         <p>
           Um resumo rápido para enxergar o que já está marcado e onde ainda há
           espaço para organizar treinos, compras e decisões da expedição.
         </p>
+
+        {showForm && (
+          <div className="agenda-form">
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Novo compromisso..."
+              autoFocus
+            />
+
+            <input
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
+
+            <select
+              value={type}
+              onChange={(event) =>
+                setType(event.target.value as AgendaEvent['type'])
+              }
+            >
+              <option value="treino">Treino</option>
+              <option value="show">Show</option>
+              <option value="palestra">Palestra</option>
+              <option value="bloqueio">Bloqueio</option>
+              <option value="viagem">Viagem</option>
+              <option value="tarefa">Tarefa</option>
+            </select>
+
+            <div>
+              <button onClick={handleSaveEvent}>
+                {editingId ? 'Salvar edição' : 'Salvar'}
+              </button>
+              <button onClick={resetForm}>Cancelar</button>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="agenda-list">
@@ -85,6 +181,24 @@ export function Agenda() {
                     </div>
                   )}
                 </div>
+
+                {!item.automatic && (
+                  <div className="agenda-actions">
+                    <button
+                      onClick={() => handleEditEvent(item)}
+                      title="Editar compromisso"
+                    >
+                      ✏️
+                    </button>
+
+                    <button
+                      onClick={() => handleRemoveEvent(item.id, item.title)}
+                      title="Excluir compromisso"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                )}
               </article>
             </div>
           )
