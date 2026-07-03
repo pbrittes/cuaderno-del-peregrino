@@ -37,19 +37,17 @@ export function useMissionStore() {
       source: 'manual',
     }
 
-    setMissions((current) => [...current, mission])
+    setMissions((current) => [mission, ...current])
   }
 
   function addMission(mission: Mission) {
-    setMissions((current) => [...current, mission])
+    setMissions((current) => [mission, ...current])
   }
 
   function updateMission(id: string, data: Partial<Mission>) {
     setMissions((current) =>
       current.map((mission) =>
-        mission.id === id
-          ? { ...mission, ...data }
-          : mission,
+        mission.id === id ? { ...mission, ...data } : mission,
       ),
     )
   }
