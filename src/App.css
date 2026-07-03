@@ -404,4 +404,64 @@ h2 {
   .gear-weight {
     display: block !important;
   }
+}.missions-card {
+  background: rgba(255,255,255,.72);
+  border-radius: 26px;
+  padding: 32px;
+  border: 1px solid rgba(45,37,32,.08);
+  box-shadow: var(--shadow-card);
+}
+
+.mission-row {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(45,37,32,.08);
+}
+
+.mission-row:last-child {
+  border-bottom: none;
+}
+
+.mission-row strong {
+  display: block;
+  font-size: 16px;
+}
+
+.mission-row small {
+  color: var(--color-muted);
+  text-transform: capitalize;
+  font-size: 13px;
+}.mission-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  text-align: left;
+
+  padding: 14px 0;
+
+  border-bottom: 1px solid rgba(45, 37, 32, .08);
+
+  transition: .2s;
+}
+
+.mission-row:hover {
+  opacity: .70;
+}
+
+.mission-row:last-child {
+  border-bottom: none;
+}
+
+.mission-row strong {
+  display: block;
+  font-size: 16px;
+  color: var(--color-ink);
+}
+
+.mission-row small {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  text-transform: capitalize;
 }
