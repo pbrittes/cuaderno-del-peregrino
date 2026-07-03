@@ -62,11 +62,11 @@ export function Agenda() {
     resetForm()
   }
 
-  function handleEditEvent(item: AgendaEvent) {
-    setEditingId(item.id)
-    setTitle(item.title)
-    setDate(item.date)
-    setType(item.type)
+  function handleEditEvent(event: AgendaEvent) {
+    setEditingId(event.id)
+    setTitle(event.title)
+    setDate(event.date)
+    setType(event.type)
     setShowForm(true)
   }
 
@@ -148,6 +148,8 @@ export function Agenda() {
           const showMonth = month !== currentMonth
           currentMonth = month
 
+          const originalEvent = events.find((event) => event.id === item.id)
+
           return (
             <div key={item.id}>
               {showMonth && <h3 className="timeline-month">{month}</h3>}
@@ -182,10 +184,10 @@ export function Agenda() {
                   )}
                 </div>
 
-                {!item.automatic && (
+                {!item.automatic && originalEvent && (
                   <div className="agenda-actions">
                     <button
-                      onClick={() => handleEditEvent(item)}
+                      onClick={() => handleEditEvent(originalEvent)}
                       title="Editar compromisso"
                     >
                       ✏️

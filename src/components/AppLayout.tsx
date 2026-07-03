@@ -56,8 +56,8 @@ export function AppLayout({
         {/* Rodapé desktop */}
         <footer className="sidebar-footer">
           <small>Expedición Santiago 2026</small>
-          <strong>Edición II</strong>
-          <span>Preparando el Equipaje</span>
+          <strong>Edición III</strong>
+          <span>La Agenda Viva</span>
         </footer>
       </aside>
 
