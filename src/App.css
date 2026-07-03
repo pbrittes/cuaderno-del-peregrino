@@ -11,6 +11,8 @@ body {
 
 button { font: inherit; }
 
+/* Layout */
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -111,22 +113,26 @@ button { font: inherit; }
   margin: 0 auto;
 }
 
+/* Home */
+
 .home-dashboard {
   display: grid;
   grid-template-columns: minmax(420px, 1fr) minmax(360px, .9fr);
   grid-template-areas:
     "countdown event"
-    "backpack event";
+    "backpack missions";
   gap: 24px;
 }
 
 .countdown-card { grid-area: countdown; }
 .next-event-card { grid-area: event; }
 .backpack-card { grid-area: backpack; }
+.missions-card { grid-area: missions; }
 
 .countdown-card,
 .next-event-card,
 .backpack-card,
+.missions-card,
 .agenda-header {
   background: rgba(255,255,255,.72);
   border-radius: 26px;
@@ -211,6 +217,117 @@ h2 {
   font-weight: 600;
 }
 
+/* Missões */
+
+.missions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.missions-header .eyebrow {
+  margin: 0;
+}
+
+.mission-add-button,
+.mission-done-button {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-add-button {
+  width: 34px;
+  height: 34px;
+  background: var(--color-santiago-red);
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  box-shadow: 0 10px 20px rgba(161,34,45,.18);
+}
+
+.mission-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(45,37,32,.08);
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+}
+
+.mission-row:last-child {
+  border-bottom: none;
+}
+
+.mission-row strong {
+  display: block;
+  font-size: 16px;
+  color: var(--color-ink);
+}
+
+.mission-row small {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  text-transform: capitalize;
+  font-size: 13px;
+}
+
+.mission-done-button {
+  width: 32px;
+  height: 32px;
+  background: #dff3e4;
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.mission-form {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(45,37,32,.08);
+}
+
+.mission-form input {
+  width: 100%;
+  border: 1px solid rgba(45,37,32,.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.82);
+  color: var(--color-ink);
+}
+
+.mission-form div {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.mission-form button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.mission-form button:first-child {
+  background: var(--color-santiago-red);
+  color: white;
+}
+
+.mission-form button:last-child {
+  background: #f3efe9;
+  color: var(--color-muted);
+}
+
 /* Agenda */
 
 .agenda-list {
@@ -290,6 +407,10 @@ h2 {
   font-weight: 600;
 }
 
+.gear-item-info small {
+  display: none;
+}
+
 .status-button {
   width: 44px;
   height: 44px;
@@ -345,6 +466,7 @@ h2 {
   .countdown-card,
   .next-event-card,
   .backpack-card,
+  .missions-card,
   .agenda-header {
     padding: 24px;
   }
@@ -396,72 +518,4 @@ h2 {
     font-size: 13px;
     font-weight: 700;
   }
-}@media (min-width: 701px) {
-  .gear-item-info small {
-    display: none !important;
-  }
-
-  .gear-weight {
-    display: block !important;
-  }
-}.missions-card {
-  background: rgba(255,255,255,.72);
-  border-radius: 26px;
-  padding: 32px;
-  border: 1px solid rgba(45,37,32,.08);
-  box-shadow: var(--shadow-card);
-}
-
-.mission-row {
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(45,37,32,.08);
-}
-
-.mission-row:last-child {
-  border-bottom: none;
-}
-
-.mission-row strong {
-  display: block;
-  font-size: 16px;
-}
-
-.mission-row small {
-  color: var(--color-muted);
-  text-transform: capitalize;
-  font-size: 13px;
-}.mission-row {
-  width: 100%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-
-  text-align: left;
-
-  padding: 14px 0;
-
-  border-bottom: 1px solid rgba(45, 37, 32, .08);
-
-  transition: .2s;
-}
-
-.mission-row:hover {
-  opacity: .70;
-}
-
-.mission-row:last-child {
-  border-bottom: none;
-}
-
-.mission-row strong {
-  display: block;
-  font-size: 16px;
-  color: var(--color-ink);
-}
-
-.mission-row small {
-  display: block;
-  margin-top: 4px;
-  color: var(--color-muted);
-  text-transform: capitalize;
 }
