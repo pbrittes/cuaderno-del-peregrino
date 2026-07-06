@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAgendaStore } from '../../data/agendaStore'
-import { buildTimeline } from '../../data/expeditionEngine'
+import { buildTimeline, type TimelineItem } from '../../data/expeditionEngine'
 import type { AgendaEvent } from '../../data/agenda'
 
 const itemIcon = {
@@ -41,6 +41,9 @@ export function Agenda() {
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [type, setType] = useState<AgendaEvent['type']>('treino')
+  const [formContext, setFormContext] = useState<
+    'create' | 'edit' | 'reserve'
+  >('create')
 
   let currentMonth = ''
 
@@ -49,7 +52,22 @@ export function Agenda() {
     setDate('')
     setType('treino')
     setEditingId(null)
+    setFormContext('create')
     setShowForm(false)
+  }
+
+  function handleOpenCreateEvent() {
+    resetForm()
+    setShowForm(true)
+  }
+
+  function handleReserveFreeWeekend(item: TimelineItem) {
+    setTitle('Treino longo')
+    setDate(item.date)
+    setType('treino')
+    setEditingId(null)
+    setFormContext('reserve')
+    setShowForm(true)
   }
 
   function handleSaveEvent() {
@@ -67,6 +85,7 @@ export function Agenda() {
     setTitle(event.title)
     setDate(event.date)
     setType(event.type)
+    setFormContext('edit')
     setShowForm(true)
   }
 
@@ -89,10 +108,7 @@ export function Agenda() {
 
           <button
             className="mission-add-button"
-            onClick={() => {
-              resetForm()
-              setShowForm(true)
-            }}
+            onClick={handleOpenCreateEvent}
           >
             +
           </button>
@@ -134,7 +150,11 @@ export function Agenda() {
 
             <div>
               <button onClick={handleSaveEvent}>
-                {editingId ? 'Salvar edição' : 'Salvar'}
+                {formContext === 'edit'
+                  ? 'Salvar edição'
+                  : formContext === 'reserve'
+                    ? 'Reservar janela'
+                    : 'Salvar'}
               </button>
               <button onClick={resetForm}>Cancelar</button>
             </div>
@@ -161,7 +181,9 @@ export function Agenda() {
               >
                 <div className="agenda-date">
                   <span>{formatDate(item.date)}</span>
-                  {item.endDate && <small>até {formatDate(item.endDate)}</small>}
+                  {item.endDate && (
+                    <small>até {formatDate(item.endDate)}</small>
+                  )}
                 </div>
 
                 <div className="agenda-content">
@@ -184,22 +206,35 @@ export function Agenda() {
                   )}
                 </div>
 
-                {!item.automatic && originalEvent && (
+                {item.automatic ? (
                   <div className="agenda-actions">
                     <button
-                      onClick={() => handleEditEvent(originalEvent)}
-                      title="Editar compromisso"
+                      onClick={() => handleReserveFreeWeekend(item)}
+                      title="Reservar janela livre"
                     >
-                      ✏️
-                    </button>
-
-                    <button
-                      onClick={() => handleRemoveEvent(item.id, item.title)}
-                      title="Excluir compromisso"
-                    >
-                      🗑️
+                      ✎
                     </button>
                   </div>
+                ) : (
+                  originalEvent && (
+                    <div className="agenda-actions">
+                      <button
+                        onClick={() => handleEditEvent(originalEvent)}
+                        title="Editar compromisso"
+                      >
+                        ✏️
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleRemoveEvent(item.id, item.title)
+                        }
+                        title="Excluir compromisso"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  )
                 )}
               </article>
             </div>

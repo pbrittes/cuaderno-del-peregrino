@@ -219,6 +219,10 @@ h2 {
 
 /* Missões */
 
+.missions-card {
+  text-align: left;
+}
+
 .missions-header {
   display: flex;
   justify-content: space-between;
@@ -232,6 +236,7 @@ h2 {
 }
 
 .mission-add-button,
+.mission-edit-button,
 .mission-done-button {
   border: none;
   cursor: pointer;
@@ -239,6 +244,7 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: .2s ease;
 }
 
 .mission-add-button {
@@ -251,21 +257,28 @@ h2 {
   box-shadow: 0 10px 20px rgba(161,34,45,.18);
 }
 
+.mission-add-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(161,34,45,.22);
+}
+
 .mission-row {
   width: 100%;
   border: none;
-  background: transparent;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(45,37,32,.08);
+  background: rgba(255,255,255,.42);
+  padding: 14px 14px;
+  border: 1px solid rgba(45,37,32,.06);
+  border-radius: 18px;
   display: grid;
-  grid-template-columns: 1fr 34px;
+  grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: center;
   text-align: left;
+  margin-bottom: 10px;
 }
 
 .mission-row:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .mission-row strong {
@@ -275,40 +288,85 @@ h2 {
 }
 
 .mission-row small {
-  display: block;
-  margin-top: 4px;
+  display: inline-flex;
+  margin-top: 6px;
   color: var(--color-muted);
+  background: #f3efe9;
+  border-radius: 999px;
+  padding: 4px 10px;
   text-transform: capitalize;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mission-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mission-edit-button,
+.mission-done-button {
+  width: 34px;
+  height: 34px;
+  font-weight: 700;
+}
+
+.mission-edit-button {
+  background: #f3efe9;
+  color: var(--color-muted);
+}
+
+.mission-edit-button:hover {
+  background: var(--color-santiago-red);
+  color: white;
 }
 
 .mission-done-button {
-  width: 32px;
-  height: 32px;
   background: #dff3e4;
   color: var(--color-ink);
-  font-weight: 700;
+}
+
+.mission-done-button:hover {
+  background: #c7ebd0;
 }
 
 .mission-form {
   margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(45,37,32,.08);
+  padding: 16px;
+  border: 1px solid rgba(45,37,32,.08);
+  border-radius: 20px;
+  background: rgba(255,255,255,.48);
+  display: grid;
+  gap: 10px;
 }
 
-.mission-form input {
+.mission-form input,
+.mission-form select {
   width: 100%;
   border: 1px solid rgba(45,37,32,.12);
   border-radius: 14px;
   padding: 12px 14px;
-  background: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.88);
   color: var(--color-ink);
+  outline: none;
+}
+
+.mission-form input:focus,
+.mission-form select:focus {
+  border-color: rgba(161,34,45,.42);
+  box-shadow: 0 0 0 3px rgba(161,34,45,.08);
+}
+
+.mission-form select {
+  cursor: pointer;
 }
 
 .mission-form div {
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 
 .mission-form button {
@@ -316,11 +374,18 @@ h2 {
   border-radius: 999px;
   padding: 10px 16px;
   cursor: pointer;
+  transition: .2s ease;
 }
 
 .mission-form button:first-child {
   background: var(--color-santiago-red);
   color: white;
+  box-shadow: 0 10px 20px rgba(161,34,45,.14);
+}
+
+.mission-form button:first-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(161,34,45,.2);
 }
 
 .mission-form button:last-child {
@@ -518,7 +583,9 @@ h2 {
     font-size: 13px;
     font-weight: 700;
   }
-}.agenda-header-top {
+}
+
+.agenda-header-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -569,7 +636,9 @@ h2 {
   .agenda-header-top {
     align-items: center;
   }
-}.agenda-item {
+}
+
+.agenda-item {
   position: relative;
 }
 

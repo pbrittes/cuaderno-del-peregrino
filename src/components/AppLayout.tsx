@@ -48,8 +48,8 @@ export function AppLayout({
           {/* Rodapé para celular */}
           <div className="sidebar-footer-mobile">
             <small>Expedición Santiago 2026</small>
-            <strong>Edición II</strong>
-            <span>Preparando el Equipaje</span>
+            <strong>Edición III</strong>
+            <span>La Agenda Viva</span>
           </div>
         </div>
 

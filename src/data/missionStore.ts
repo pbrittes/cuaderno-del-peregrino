@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
-import { initialMissions, type Mission } from './missions'
+import {
+  initialMissions,
+  type Mission,
+  type MissionCategory,
+} from './missions'
 
 const STORAGE_KEY = 'cuaderno-missions'
 
@@ -22,7 +26,7 @@ export function useMissionStore() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(missions))
   }, [missions])
 
-  function createMission(title: string) {
+  function createMission(title: string, category: MissionCategory = 'geral') {
     const trimmed = title.trim()
 
     if (!trimmed) return
@@ -31,7 +35,7 @@ export function useMissionStore() {
       id: crypto.randomUUID(),
       title: trimmed,
       description: '',
-      category: 'geral',
+      category,
       priority: 'média',
       status: 'todo',
       source: 'manual',
