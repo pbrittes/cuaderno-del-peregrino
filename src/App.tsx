@@ -5,8 +5,9 @@ import { AppLayout } from './components/AppLayout'
 import { Home } from './pages/Home/Home'
 import { Agenda } from './pages/Agenda/Agenda'
 import { Mochila } from './pages/Mochila/Mochila'
+import { Viagem } from './pages/Viagem/Viagem'
 
-type Page = 'home' | 'agenda' | 'mochila'
+type Page = 'home' | 'agenda' | 'mochila' | 'viagem'
 
 export default function App() {
   const [page, setPage] = useState<Page>('home')
@@ -16,6 +17,7 @@ export default function App() {
       {page === 'home' && <Home />}
       {page === 'agenda' && <Agenda />}
       {page === 'mochila' && <Mochila />}
+      {page === 'viagem' && <Viagem />}
     </AppLayout>
   )
 }

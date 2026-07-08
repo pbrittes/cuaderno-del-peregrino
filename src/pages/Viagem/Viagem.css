@@ -1,0 +1,221 @@
+.viagem-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.viagem-header,
+.viagem-card {
+  background: rgba(255,255,255,.72);
+  border-radius: 26px;
+  padding: 36px;
+  border: 1px solid rgba(45,37,32,.08);
+  box-shadow: var(--shadow-card);
+}
+
+.viagem-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.viagem-header h2 {
+  margin-bottom: 18px;
+}
+
+.viagem-header p:last-child {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.viagem-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.viagem-card {
+  text-align: left;
+}
+
+.viagem-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.viagem-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.viagem-card p {
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.viagem-card .mission-add-button:disabled {
+  opacity: .45;
+  cursor: default;
+  transform: none;
+}
+
+.viagem-empty-state {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f3efe9;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.viagem-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.viagem-list-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.42);
+  border: 1px solid rgba(45,37,32,.06);
+}
+
+.viagem-list-item strong,
+.viagem-list-item span,
+.viagem-list-item small {
+  display: block;
+}
+
+.viagem-list-item strong {
+  color: var(--color-ink);
+  font-size: 16px;
+}
+
+.viagem-list-item span {
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.viagem-list-item small {
+  margin-top: 4px;
+  color: var(--color-santiago-red);
+  font-weight: 700;
+}
+
+.viagem-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.viagem-item-actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: .55;
+}
+
+.viagem-item-actions button:hover {
+  opacity: 1;
+}
+
+.viagem-form {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(45,37,32,.08);
+  border-radius: 20px;
+  background: rgba(255,255,255,.48);
+  display: grid;
+  gap: 10px;
+}
+
+.viagem-form input,
+.viagem-form textarea {
+  width: 100%;
+  border: 1px solid rgba(45,37,32,.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.88);
+  color: var(--color-ink);
+  outline: none;
+  font: inherit;
+}
+
+.viagem-form textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.viagem-form input:focus,
+.viagem-form textarea:focus {
+  border-color: rgba(161,34,45,.42);
+  box-shadow: 0 0 0 3px rgba(161,34,45,.08);
+}
+
+.viagem-form div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.viagem-form button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.viagem-form button:first-child {
+  background: var(--color-santiago-red);
+  color: white;
+  box-shadow: 0 10px 20px rgba(161,34,45,.14);
+}
+
+.viagem-form button:first-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(161,34,45,.2);
+}
+
+.viagem-form button:last-child {
+  background: #f3efe9;
+  color: var(--color-muted);
+}
+
+@media (max-width: 700px) {
+  .viagem-header,
+  .viagem-card {
+    padding: 24px;
+  }
+
+  .viagem-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .viagem-card h3 {
+    font-size: 24px;
+  }
+
+  .viagem-list-item {
+    align-items: flex-start;
+  }
+
+  .viagem-item-actions {
+    flex-direction: column;
+  }
+}

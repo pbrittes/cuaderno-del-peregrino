@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { ShellLogo } from './ShellLogo'
 
-type Page = 'home' | 'agenda' | 'mochila'
+type Page = 'home' | 'agenda' | 'mochila' | 'viagem'
 
 type AppLayoutProps = {
   page: Page
@@ -13,6 +13,7 @@ const menuItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: 'home', label: 'Cuaderno', icon: '⌂' },
   { id: 'agenda', label: 'Agenda', icon: '◷' },
   { id: 'mochila', label: 'Mochila', icon: '🎒' },
+  { id: 'viagem', label: 'Viagem', icon: '✈️' },
 ]
 
 export function AppLayout({
@@ -45,19 +46,17 @@ export function AppLayout({
             ))}
           </nav>
 
-          {/* Rodapé para celular */}
           <div className="sidebar-footer-mobile">
             <small>Expedición Santiago 2026</small>
-            <strong>Edición III</strong>
-            <span>La Agenda Viva</span>
+            <strong>Edición IV</strong>
+            <span>El Viaje</span>
           </div>
         </div>
 
-        {/* Rodapé desktop */}
         <footer className="sidebar-footer">
           <small>Expedición Santiago 2026</small>
-          <strong>Edición III</strong>
-          <span>La Agenda Viva</span>
+          <strong>Edición IV</strong>
+          <span>El Viaje</span>
         </footer>
       </aside>
 
