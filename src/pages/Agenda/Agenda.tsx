@@ -212,7 +212,7 @@ export function Agenda() {
                       onClick={() => handleReserveFreeWeekend(item)}
                       title="Reservar janela livre"
                     >
-                      ✎
+                      ✏️
                     </button>
                   </div>
                 ) : (

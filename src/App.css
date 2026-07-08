@@ -686,7 +686,7 @@ h2 {
   background: transparent;
   cursor: pointer;
   font-size: 16px;
-  opacity: .45;
+  opacity: .65;
 }
 
 .agenda-actions button:hover {
@@ -699,14 +699,29 @@ h2 {
 
 @media (max-width: 700px) {
   .agenda-item {
-    grid-template-columns: 90px 1fr 64px;
+    grid-template-columns: 72px 1fr;
     align-items: start;
   }
 
   .agenda-actions {
     position: static;
-    align-self: start;
+    grid-column: 1 / -1;
     justify-self: end;
-    margin-top: 2px;
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .agenda-actions button {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: #f3efe9;
+    opacity: 1;
+  }
+
+  .agenda-actions button:hover {
+    background: var(--color-santiago-red);
+    color: white;
   }
 }
