@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react'
 import { ShellLogo } from './ShellLogo'
 
-type Page = 'home' | 'agenda' | 'mochila' | 'viagem'
+type Page =
+  | 'home'
+  | 'agenda'
+  | 'mochila'
+  | 'viagem'
+  | 'financeiro'
 
 type AppLayoutProps = {
   page: Page
@@ -14,6 +19,7 @@ const menuItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: 'agenda', label: 'Agenda', icon: '◷' },
   { id: 'mochila', label: 'Mochila', icon: '🎒' },
   { id: 'viagem', label: 'Viagem', icon: '✈️' },
+  { id: 'financeiro', label: 'Financeiro', icon: '💶' },
 ]
 
 export function AppLayout({
