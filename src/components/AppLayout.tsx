@@ -54,15 +54,15 @@ export function AppLayout({
 
           <div className="sidebar-footer-mobile">
             <small>Expedición Santiago 2026</small>
-            <strong>Edición IV</strong>
-            <span>El Viaje</span>
+            <strong>Edición V</strong>
+            <span>Finanzas del Peregrino</span>
           </div>
         </div>
 
         <footer className="sidebar-footer">
           <small>Expedición Santiago 2026</small>
-          <strong>Edición IV</strong>
-          <span>El Viaje</span>
+          <strong>Edición V</strong>
+          <span>Finanzas del Peregrino</span>
         </footer>
       </aside>
 
