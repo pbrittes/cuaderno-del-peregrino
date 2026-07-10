@@ -724,4 +724,7 @@ h2 {
     background: var(--color-santiago-red);
     color: white;
   }
+}.sidebar-brand .shell-logo {
+  color: var(--color-santiago-red);
+  flex-shrink: 0;
 }
