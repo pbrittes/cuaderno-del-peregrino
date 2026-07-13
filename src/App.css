@@ -264,13 +264,22 @@ h2 {
 }
 
 .mission-add-button {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
   background: var(--color-santiago-red);
   color: white;
-  font-weight: 700;
-  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: .2s ease;
   box-shadow: 0 10px 20px rgba(161,34,45,.18);
+}
+
+.mission-add-button svg {
+  display: block;
 }
 
 .mission-add-button:hover {

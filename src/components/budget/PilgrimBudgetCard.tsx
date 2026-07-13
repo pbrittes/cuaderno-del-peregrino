@@ -1,3 +1,5 @@
+import { CheckCircleIcon } from '../icons/AppIcons'
+
 import type {
   BudgetItem,
   BudgetItemData,
@@ -8,6 +10,7 @@ import type {
 } from '../../data/backpacks'
 import {
   formatBudgetCurrency,
+  getPendingBudgetItemsCount,
   getPilgrimBudgetSummary,
 } from '../../data/orcamentoEngine'
 
@@ -38,7 +41,13 @@ export function PilgrimBudgetCard({
 }: PilgrimBudgetCardProps) {
   const summary = getPilgrimBudgetSummary(
     pilgrim,
+    gearItems,
     budgetItems,
+  )
+
+  const pendingItemsCount = getPendingBudgetItemsCount(
+    gearItems,
+    pilgrim,
   )
 
   function updateBudgetItem(
@@ -79,8 +88,8 @@ export function PilgrimBudgetCard({
         </div>
 
         <span>
-          {gearItems.length}{' '}
-          {gearItems.length === 1
+          {pendingItemsCount}{' '}
+          {pendingItemsCount === 1
             ? 'item para comprar'
             : 'itens para comprar'}
         </span>
@@ -88,7 +97,7 @@ export function PilgrimBudgetCard({
 
       {gearItems.length === 0 ? (
         <div className="budget-empty-state">
-          <p>Nenhum item marcado para comprar.</p>
+          <p>Nenhum item no orçamento.</p>
         </div>
       ) : (
         <div className="budget-items-list">
@@ -99,17 +108,33 @@ export function PilgrimBudgetCard({
               pilgrim,
             )
 
+            const isPurchased =
+              gearItem.status[pilgrim] === 'tem'
+
             return (
               <div
-                className="budget-item-row"
+                className={`budget-item-row ${
+                  isPurchased
+                    ? 'budget-item-row-purchased'
+                    : ''
+                }`}
                 key={`${pilgrim}-${gearItem.id}`}
               >
                 <div className="budget-item-name">
-                  <strong>
-                    {gearItem.quantity > 1
-                      ? `${gearItem.quantity} × ${gearItem.name}`
-                      : gearItem.name}
-                  </strong>
+                  <div className="budget-item-title">
+                    {isPurchased && (
+                      <CheckCircleIcon
+                        size={20}
+                        strokeWidth={2.2}
+                      />
+                    )}
+
+                    <strong>
+                      {gearItem.quantity > 1
+                        ? `${gearItem.quantity} × ${gearItem.name}`
+                        : gearItem.name}
+                    </strong>
+                  </div>
 
                   <small>{gearItem.category}</small>
                 </div>

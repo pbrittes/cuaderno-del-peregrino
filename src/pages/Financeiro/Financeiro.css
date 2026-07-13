@@ -340,6 +340,10 @@
   gap: 16px;
 }
 
+.expense-card-header > div {
+  text-align: left;
+}
+
 .expense-card-header h3 {
   margin: 0;
   font-size: 22px;
@@ -617,14 +621,16 @@
 /* ===== Categoria ===== */
 
 .expense-category {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 7px;
   margin: 6px 0 0;
   color: var(--color-muted);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.2;
+  text-align: left;
   text-transform: capitalize;
 }
 
