@@ -552,6 +552,18 @@ h2 {
 /* Mobile */
 
 @media (max-width: 700px) {
+
+  .agenda-header h2,
+  .finance-header h2,
+  .budget-page h2,
+  .home-page h2,
+  .travel-page h2 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+
   .app-shell {
     display: block;
   }
