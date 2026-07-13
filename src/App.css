@@ -630,6 +630,33 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    opacity: 1;
+  }
+
+  .gear-mobile-statuses .status-button.comprar {
+    background: #f8e4e4;
+    color: #b22222;
+  }
+
+  .gear-mobile-statuses .status-button.testar {
+    background: #fff4d6;
+    color: #9b6b00;
+  }
+
+  .gear-mobile-statuses .status-button.tem {
+    background: #dff3e4;
+    color: #2e8b57;
+  }
+
+  .gear-mobile-statuses .status-button span,
+  .gear-mobile-statuses .status-button strong,
+  .gear-mobile-statuses .status-button svg {
+    color: inherit;
+    opacity: 1;
+  }
+
+  .gear-mobile-statuses .status-button svg {
+    stroke: currentColor;
   }
 
   .gear-mobile-statuses span {
