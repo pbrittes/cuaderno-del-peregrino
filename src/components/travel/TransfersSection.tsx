@@ -1,4 +1,12 @@
 import { useState } from 'react'
+
+import {
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  TransportIcon,
+} from '../icons/AppIcons'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import type { Transfer } from '../../data/viagemStore'
 
 type TransfersSectionProps = {
@@ -24,7 +32,7 @@ const emptyTransferForm: Omit<Transfer, 'id'> = {
 function formatDate(date: string) {
   if (!date) return ''
 
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -51,6 +59,8 @@ export function TransfersSection({
   )
   const [transferForm, setTransferForm] =
     useState<Omit<Transfer, 'id'>>(emptyTransferForm)
+  const [transferToDelete, setTransferToDelete] =
+    useState<Transfer | null>(null)
 
   function resetTransferForm() {
     setTransferForm(emptyTransferForm)
@@ -103,14 +113,11 @@ export function TransfersSection({
     resetTransferForm()
   }
 
-  function handleRemoveTransfer(transfer: Transfer) {
-    const confirmed = window.confirm(
-      `Excluir deslocamento ${transfer.origin} → ${transfer.destination}?`,
-    )
+  function handleConfirmRemoveTransfer() {
+    if (!transferToDelete) return
 
-    if (confirmed) {
-      deleteTransfer(transfer.id)
-    }
+    deleteTransfer(transferToDelete.id)
+    setTransferToDelete(null)
   }
 
   function updateTransferField(
@@ -128,17 +135,20 @@ export function TransfersSection({
       <div className="viagem-card-header">
         <div>
           <p className="eyebrow">Deslocamentos</p>
+
           <h3>
-            <span>🚆</span>
-            Entre uma cidade e outra
+            <TransportIcon size={30} />
+            <span>Entre uma cidade e outra</span>
           </h3>
         </div>
 
         <button
           className="mission-add-button"
           onClick={handleOpenCreateTransfer}
+          title="Adicionar deslocamento"
+          aria-label="Adicionar deslocamento"
         >
-          +
+          <PlusIcon size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -194,15 +204,17 @@ export function TransfersSection({
                 <button
                   onClick={() => handleOpenEditTransfer(transfer)}
                   title="Editar deslocamento"
+                  aria-label="Editar deslocamento"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleRemoveTransfer(transfer)}
+                  onClick={() => setTransferToDelete(transfer)}
                   title="Excluir deslocamento"
+                  aria-label="Excluir deslocamento"
                 >
-                  🗑️
+                  <DeleteIcon size={18} />
                 </button>
               </div>
             </article>
@@ -313,6 +325,20 @@ export function TransfersSection({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(transferToDelete)}
+        title="Excluir deslocamento?"
+        message={
+          transferToDelete
+            ? `O deslocamento ${transferToDelete.origin} → ${transferToDelete.destination} será removido da viagem.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmRemoveTransfer}
+        onCancel={() => setTransferToDelete(null)}
+      />
     </article>
   )
 }

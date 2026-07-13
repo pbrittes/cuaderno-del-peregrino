@@ -1,4 +1,12 @@
 import { useState } from 'react'
+
+import {
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  TravelIcon,
+} from '../icons/AppIcons'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import type { Flight } from '../../data/viagemStore'
 
 type FlightsSectionProps = {
@@ -23,7 +31,7 @@ const emptyFlightForm: Omit<Flight, 'id'> = {
 function formatDate(date: string) {
   if (!date) return ''
 
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -48,6 +56,7 @@ export function FlightsSection({
   const [editingFlightId, setEditingFlightId] = useState<string | null>(null)
   const [flightForm, setFlightForm] =
     useState<Omit<Flight, 'id'>>(emptyFlightForm)
+  const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null)
 
   function resetFlightForm() {
     setFlightForm(emptyFlightForm)
@@ -99,14 +108,11 @@ export function FlightsSection({
     resetFlightForm()
   }
 
-  function handleRemoveFlight(flight: Flight) {
-    const confirmed = window.confirm(
-      `Excluir voo ${flight.flightNumber || flight.airline}?`,
-    )
+  function handleConfirmRemoveFlight() {
+    if (!flightToDelete) return
 
-    if (confirmed) {
-      deleteFlight(flight.id)
-    }
+    deleteFlight(flightToDelete.id)
+    setFlightToDelete(null)
   }
 
   function updateFlightField(
@@ -124,17 +130,20 @@ export function FlightsSection({
       <div className="viagem-card-header">
         <div>
           <p className="eyebrow">Voos</p>
+
           <h3>
-            <span>✈️</span>
-            Trechos aéreos
+            <TravelIcon size={22} />
+            <span>Trechos aéreos</span>
           </h3>
         </div>
 
         <button
           className="mission-add-button"
           onClick={handleOpenCreateFlight}
+          title="Adicionar voo"
+          aria-label="Adicionar voo"
         >
-          +
+          <PlusIcon size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -187,15 +196,17 @@ export function FlightsSection({
                 <button
                   onClick={() => handleOpenEditFlight(flight)}
                   title="Editar voo"
+                  aria-label="Editar voo"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleRemoveFlight(flight)}
+                  onClick={() => setFlightToDelete(flight)}
                   title="Excluir voo"
+                  aria-label="Excluir voo"
                 >
-                  🗑️
+                  <DeleteIcon size={18} />
                 </button>
               </div>
             </article>
@@ -302,6 +313,22 @@ export function FlightsSection({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(flightToDelete)}
+        title="Excluir voo?"
+        message={
+          flightToDelete
+            ? `O voo ${
+                flightToDelete.flightNumber || flightToDelete.airline
+              } será removido da viagem.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmRemoveFlight}
+        onCancel={() => setFlightToDelete(null)}
+      />
     </article>
   )
 }

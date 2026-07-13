@@ -1,4 +1,12 @@
 import { useState } from 'react'
+
+import {
+  DeleteIcon,
+  DocumentIcon,
+  EditIcon,
+  PlusIcon,
+} from '../icons/AppIcons'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import type { TravelDocument } from '../../data/viagemStore'
 
 type DocumentsSectionProps = {
@@ -20,7 +28,7 @@ const emptyDocumentForm: Omit<TravelDocument, 'id'> = {
 function formatDate(date: string) {
   if (!date) return ''
 
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -43,6 +51,7 @@ export function DocumentsSection({
   )
   const [documentForm, setDocumentForm] =
     useState<Omit<TravelDocument, 'id'>>(emptyDocumentForm)
+  const [documentToDelete, setDocumentToDelete] = useState<TravelDocument | null>(null)
 
   function resetDocumentForm() {
     setDocumentForm(emptyDocumentForm)
@@ -86,12 +95,11 @@ export function DocumentsSection({
     resetDocumentForm()
   }
 
-  function handleRemoveDocument(document: TravelDocument) {
-    const confirmed = window.confirm(`Excluir documento ${document.title}?`)
+  function handleConfirmRemoveDocument() {
+    if (!documentToDelete) return
 
-    if (confirmed) {
-      deleteDocument(document.id)
-    }
+    deleteDocument(documentToDelete.id)
+    setDocumentToDelete(null)
   }
 
   function updateDocumentField(
@@ -109,17 +117,20 @@ export function DocumentsSection({
       <div className="viagem-card-header">
         <div>
           <p className="eyebrow">Documentos</p>
+
           <h3>
-            <span>📄</span>
-            Checklist essencial
+            <DocumentIcon size={30} />
+            <span>Checklist essencial</span>
           </h3>
         </div>
 
         <button
           className="mission-add-button"
           onClick={handleOpenCreateDocument}
+          title="Adicionar documento"
+          aria-label="Adicionar documento"
         >
-          +
+          <PlusIcon size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -165,15 +176,17 @@ export function DocumentsSection({
                 <button
                   onClick={() => handleOpenEditDocument(document)}
                   title="Editar documento"
+                  aria-label="Editar documento"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleRemoveDocument(document)}
+                  onClick={() => setDocumentToDelete(document)}
                   title="Excluir documento"
+                  aria-label="Excluir documento"
                 >
-                  🗑️
+                  <DeleteIcon size={18} />
                 </button>
               </div>
             </article>
@@ -244,6 +257,19 @@ export function DocumentsSection({
           </div>
         </div>
       )}
+          <ConfirmDialog
+        open={Boolean(documentToDelete)}
+        title="Excluir documento?"
+        message={
+          documentToDelete
+            ? `O documento "${documentToDelete.title}" será removido da viagem.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmRemoveDocument}
+        onCancel={() => setDocumentToDelete(null)}
+      />
     </article>
   )
 }

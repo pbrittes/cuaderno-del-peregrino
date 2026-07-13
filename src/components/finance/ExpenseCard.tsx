@@ -1,5 +1,16 @@
 import { useState } from 'react'
 
+import {
+  DeleteIcon,
+  EditIcon,
+  FoodIcon,
+  LodgingIcon,
+  MarketIcon,
+  MoreIcon,
+  PharmacyIcon,
+  TicketIcon,
+  TransportIcon,
+} from '../icons/AppIcons'
 import type { Expense } from '../../data/financas'
 import { expenseCategories } from '../../data/financas'
 
@@ -7,6 +18,16 @@ type ExpenseCardProps = {
   expense: Expense
   onEdit: (expense: Expense) => void
   onDelete: (expenseId: string) => void
+}
+
+const categoryIcons = {
+  alimentacao: FoodIcon,
+  hospedagem: LodgingIcon,
+  transporte: TransportIcon,
+  compras: MarketIcon,
+  saude: PharmacyIcon,
+  ingressos: TicketIcon,
+  outros: MoreIcon,
 }
 
 function formatCurrency(value: number, currency: 'BRL' | 'EUR') {
@@ -48,6 +69,8 @@ export function ExpenseCard({
     expenseCategories.find((item) => item.value === expense.category)
       ?.label ?? expense.category
 
+  const CategoryIcon = categoryIcons[expense.category]
+
   return (
     <article className={isOpen ? 'expense-card open' : 'expense-card'}>
       <div
@@ -58,7 +81,10 @@ export function ExpenseCard({
           <div>
             <h3>{expense.title}</h3>
 
-            <p className="expense-category">{category}</p>
+            <p className="expense-category">
+              <CategoryIcon size={18} />
+              <span>{category}</span>
+            </p>
           </div>
 
           <strong className="expense-value">
@@ -113,17 +139,19 @@ export function ExpenseCard({
         <button
           type="button"
           title="Editar despesa"
+          aria-label="Editar despesa"
           onClick={() => onEdit(expense)}
         >
-          ✏️
+          <EditIcon size={18} />
         </button>
 
         <button
           type="button"
           title="Excluir despesa"
+          aria-label="Excluir despesa"
           onClick={() => onDelete(expense.id)}
         >
-          🗑️
+          <DeleteIcon size={18} />
         </button>
       </div>
     </article>

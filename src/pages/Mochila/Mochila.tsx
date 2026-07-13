@@ -1,4 +1,11 @@
 import { useState } from 'react'
+import type { ComponentType } from 'react'
+
+import {
+  BootIcon,
+  CheckCircleIcon,
+  ShoppingCartIcon,
+} from '../../components/icons/AppIcons'
 import {
   type GearCategory,
   type GearStatus,
@@ -9,11 +16,16 @@ import { useBackpackItems } from '../../data/backpackStore'
 
 const pilgrims: Pilgrim[] = ['Pri', 'Tan', 'Deia']
 
-const statusIcon: Record<GearStatus, string> = {
-  comprar: '🛒',
-  testar: '🧪',
-  tem: '✅',
-  dispensado: '—',
+type StatusIconComponent = ComponentType<{
+  size?: number
+  className?: string
+  strokeWidth?: number
+}>
+
+const statusIcons: Partial<Record<GearStatus, StatusIconComponent>> = {
+  comprar: ShoppingCartIcon,
+  testar: BootIcon,
+  tem: CheckCircleIcon,
 }
 
 function getNextStatus(status: GearStatus): GearStatus {
@@ -25,6 +37,16 @@ function getNextStatus(status: GearStatus): GearStatus {
 
 function itemLabel(name: string, quantity: number) {
   return quantity > 1 ? `${quantity} × ${name}` : name
+}
+
+function renderStatusIcon(status: GearStatus, size: number) {
+  const StatusIcon = statusIcons[status]
+
+  if (!StatusIcon) {
+    return <span aria-hidden="true">—</span>
+  }
+
+  return <StatusIcon size={size} />
 }
 
 export function Mochila() {
@@ -71,6 +93,7 @@ export function Mochila() {
         <div className="gear-table-header">
           <span>Item</span>
           <span>Peso</span>
+
           {pilgrims.map((pilgrim) => (
             <span key={pilgrim}>{pilgrim}</span>
           ))}
@@ -78,7 +101,9 @@ export function Mochila() {
 
         {categories.map((category) => {
           const isOpen = openCategories.includes(category)
-          const categoryItems = items.filter((item) => item.category === category)
+          const categoryItems = items.filter(
+            (item) => item.category === category,
+          )
 
           return (
             <div key={category} className="gear-category">
@@ -101,27 +126,41 @@ export function Mochila() {
                     <span className="gear-weight">{formatKg(item.weight)}</span>
 
                     <div className="gear-mobile-statuses">
-                      {pilgrims.map((pilgrim) => (
-                        <button
-                          key={pilgrim}
-                          className={`status-button ${item.status[pilgrim]}`}
-                          onClick={() => toggleStatus(item.id, pilgrim)}
-                        >
-                          <span>{pilgrim}</span>
-                          <strong>{statusIcon[item.status[pilgrim]]}</strong>
-                        </button>
-                      ))}
+                      {pilgrims.map((pilgrim) => {
+                        const status = item.status[pilgrim]
+
+                        return (
+                          <button
+                            key={pilgrim}
+                            className={`status-button ${status}`}
+                            onClick={() => toggleStatus(item.id, pilgrim)}
+                            title={`${pilgrim}: ${status}`}
+                            aria-label={`${pilgrim}: ${status}`}
+                          >
+                            <span>{pilgrim}</span>
+                            <strong>
+                              {renderStatusIcon(status, 20)}
+                            </strong>
+                          </button>
+                        )
+                      })}
                     </div>
 
-                    {pilgrims.map((pilgrim) => (
-                      <button
-                        key={pilgrim}
-                        className={`status-button desktop-status ${item.status[pilgrim]}`}
-                        onClick={() => toggleStatus(item.id, pilgrim)}
-                      >
-                        {statusIcon[item.status[pilgrim]]}
-                      </button>
-                    ))}
+                    {pilgrims.map((pilgrim) => {
+                      const status = item.status[pilgrim]
+
+                      return (
+                        <button
+                          key={pilgrim}
+                          className={`status-button desktop-status ${status}`}
+                          onClick={() => toggleStatus(item.id, pilgrim)}
+                          title={`${pilgrim}: ${status}`}
+                          aria-label={`${pilgrim}: ${status}`}
+                        >
+                          {renderStatusIcon(status, 20)}
+                        </button>
+                      )
+                    })}
                   </article>
                 ))}
             </div>

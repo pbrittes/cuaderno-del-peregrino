@@ -49,10 +49,18 @@
 .viagem-card h3 {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin: 8px 0 0;
   font-size: 30px;
   line-height: 1.1;
+}
+
+.viagem-card h3 svg {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: block;
+  color: var(--color-santiago-red);
 }
 
 .viagem-card p {
@@ -121,15 +129,26 @@
 }
 
 .viagem-item-actions button {
+  width: 34px;
+  height: 34px;
   border: none;
+  border-radius: 10px;
   background: transparent;
+  color: var(--color-santiago-red);
   cursor: pointer;
-  font-size: 16px;
-  opacity: .55;
+  opacity: .65;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viagem-item-actions button svg {
+  display: block;
 }
 
 .viagem-item-actions button:hover {
   opacity: 1;
+  background: #f3efe9;
 }
 
 .viagem-form {
@@ -208,7 +227,14 @@
   }
 
   .viagem-card h3 {
+    gap: 10px;
     font-size: 24px;
+  }
+
+  .viagem-card h3 svg {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
   }
 
   .viagem-list-item {

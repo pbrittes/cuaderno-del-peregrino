@@ -1,4 +1,12 @@
 import { useState } from 'react'
+
+import {
+  DeleteIcon,
+  EditIcon,
+  LodgingIcon,
+  PlusIcon,
+} from '../icons/AppIcons'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import type { Stay } from '../../data/viagemStore'
 
 type StaysSectionProps = {
@@ -24,7 +32,7 @@ const emptyStayForm: Omit<Stay, 'id'> = {
 function formatDate(date: string) {
   if (!date) return ''
 
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -49,7 +57,9 @@ export function StaysSection({
 }: StaysSectionProps) {
   const [showStayForm, setShowStayForm] = useState(false)
   const [editingStayId, setEditingStayId] = useState<string | null>(null)
-  const [stayForm, setStayForm] = useState<Omit<Stay, 'id'>>(emptyStayForm)
+  const [stayForm, setStayForm] =
+    useState<Omit<Stay, 'id'>>(emptyStayForm)
+  const [stayToDelete, setStayToDelete] = useState<Stay | null>(null)
 
   function resetStayForm() {
     setStayForm(emptyStayForm)
@@ -97,15 +107,17 @@ export function StaysSection({
     resetStayForm()
   }
 
-  function handleRemoveStay(stay: Stay) {
-    const confirmed = window.confirm(`Excluir hospedagem ${stay.name}?`)
+  function handleConfirmRemoveStay() {
+    if (!stayToDelete) return
 
-    if (confirmed) {
-      deleteStay(stay.id)
-    }
+    deleteStay(stayToDelete.id)
+    setStayToDelete(null)
   }
 
-  function updateStayField(field: keyof Omit<Stay, 'id'>, value: string) {
+  function updateStayField(
+    field: keyof Omit<Stay, 'id'>,
+    value: string,
+  ) {
     setStayForm((current) => ({
       ...current,
       [field]: value,
@@ -117,17 +129,20 @@ export function StaysSection({
       <div className="viagem-card-header">
         <div>
           <p className="eyebrow">Hospedagens</p>
+
           <h3>
-            <span>🏨</span>
-            Onde vamos dormir
+            <LodgingIcon size={30} />
+            <span>Onde vamos dormir</span>
           </h3>
         </div>
 
         <button
           className="mission-add-button"
           onClick={handleOpenCreateStay}
+          title="Adicionar hospedagem"
+          aria-label="Adicionar hospedagem"
         >
-          +
+          <PlusIcon size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -180,15 +195,17 @@ export function StaysSection({
                 <button
                   onClick={() => handleOpenEditStay(stay)}
                   title="Editar hospedagem"
+                  aria-label="Editar hospedagem"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleRemoveStay(stay)}
+                  onClick={() => setStayToDelete(stay)}
                   title="Excluir hospedagem"
+                  aria-label="Excluir hospedagem"
                 >
-                  🗑️
+                  <DeleteIcon size={18} />
                 </button>
               </div>
             </article>
@@ -294,6 +311,20 @@ export function StaysSection({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(stayToDelete)}
+        title="Excluir hospedagem?"
+        message={
+          stayToDelete
+            ? `A hospedagem "${stayToDelete.name}" será removida da viagem.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmRemoveStay}
+        onCancel={() => setStayToDelete(null)}
+      />
     </article>
   )
 }

@@ -1,4 +1,14 @@
-import type { Expense, Pilgrim } from './financas'
+import type {
+  Expense,
+  ExpenseCategory,
+  Pilgrim,
+} from './financas'
+
+export type FinanceCategorySummary = {
+  category: ExpenseCategory
+  total: number
+  percentage: number
+}
 
 export type FinanceSummary = {
   totalTrip: number
@@ -11,9 +21,21 @@ export type FinanceSummary = {
       balance: number
     }
   >
+
+  categories: FinanceCategorySummary[]
 }
 
 const pilgrims: Pilgrim[] = ['Pri', 'Tania', 'Andrea']
+
+const categories: ExpenseCategory[] = [
+  'alimentacao',
+  'hospedagem',
+  'transporte',
+  'compras',
+  'saude',
+  'ingressos',
+  'outros',
+]
 
 function round(value: number) {
   return Math.round(value * 100) / 100
@@ -22,6 +44,16 @@ function round(value: number) {
 export function calculateFinanceSummary(
   expenses: Expense[],
 ): FinanceSummary {
+  const categoryTotals: Record<ExpenseCategory, number> = {
+    alimentacao: 0,
+    hospedagem: 0,
+    transporte: 0,
+    compras: 0,
+    saude: 0,
+    ingressos: 0,
+    outros: 0,
+  }
+
   const summary: FinanceSummary = {
     totalTrip: 0,
 
@@ -44,10 +76,13 @@ export function calculateFinanceSummary(
         balance: 0,
       },
     },
+
+    categories: [],
   }
 
   for (const expense of expenses) {
     summary.totalTrip += expense.amountInBRL
+    categoryTotals[expense.category] += expense.amountInBRL
 
     summary.people[expense.paidBy].paid += expense.amountInBRL
 
@@ -77,6 +112,22 @@ export function calculateFinanceSummary(
   }
 
   summary.totalTrip = round(summary.totalTrip)
+
+  summary.categories = categories
+    .map((category) => {
+      const total = round(categoryTotals[category])
+
+      return {
+        category,
+        total,
+        percentage:
+          summary.totalTrip === 0
+            ? 0
+            : round((total / summary.totalTrip) * 100),
+      }
+    })
+    .filter((item) => item.total > 0)
+    .sort((a, b) => b.total - a.total)
 
   return summary
 }

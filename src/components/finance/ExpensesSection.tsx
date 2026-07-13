@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { ExpenseCard } from './ExpenseCard'
 import { ExpenseForm } from './ExpenseForm'
 import type {
@@ -55,6 +56,8 @@ export function ExpensesSection({
     useState<Expense | null>(null)
   const [form, setForm] =
     useState<ExpenseFormData>(emptyForm)
+  const [expenseToDelete, setExpenseToDelete] =
+    useState<Expense | null>(null)
 
   const orderedExpenses = useMemo(() => {
     return [...expenses].sort((a, b) => {
@@ -151,14 +154,11 @@ export function ExpensesSection({
     resetForm()
   }
 
-  function handleDelete(expenseId: string) {
-    const confirmed = window.confirm(
-      'Excluir esta despesa?',
-    )
+  function handleConfirmDelete() {
+    if (!expenseToDelete) return
 
-    if (!confirmed) return
-
-    deleteExpense(expenseId)
+    deleteExpense(expenseToDelete.id)
+    setExpenseToDelete(null)
   }
 
   return (
@@ -197,11 +197,25 @@ export function ExpensesSection({
               key={expense.id}
               expense={expense}
               onEdit={handleOpenEdit}
-              onDelete={handleDelete}
+              onDelete={() => setExpenseToDelete(expense)}
             />
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(expenseToDelete)}
+        title="Excluir despesa?"
+        message={
+          expenseToDelete
+            ? `A despesa "${expenseToDelete.title}" será removida do Financeiro.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setExpenseToDelete(null)}
+      />
     </section>
   )
 }

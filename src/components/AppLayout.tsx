@@ -1,4 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
+import {
+  AgendaIcon,
+  BackpackIcon,
+  FinanceIcon,
+  HomeIcon,
+  TravelIcon,
+} from './icons/AppIcons'
 import { ShellLogo } from './ShellLogo'
 
 type Page =
@@ -14,12 +21,18 @@ type AppLayoutProps = {
   children: ReactNode
 }
 
-const menuItems: Array<{ id: Page; label: string; icon: string }> = [
-  { id: 'home', label: 'Cuaderno', icon: '⌂' },
-  { id: 'agenda', label: 'Agenda', icon: '◷' },
-  { id: 'mochila', label: 'Mochila', icon: '🎒' },
-  { id: 'viagem', label: 'Viagem', icon: '✈️' },
-  { id: 'financeiro', label: 'Financeiro', icon: '💶' },
+type MenuItem = {
+  id: Page
+  label: string
+  icon: ComponentType<{ size?: number; className?: string }>
+}
+
+const menuItems: MenuItem[] = [
+  { id: 'home', label: 'Cuaderno', icon: HomeIcon },
+  { id: 'agenda', label: 'Agenda', icon: AgendaIcon },
+  { id: 'mochila', label: 'Mochila', icon: BackpackIcon },
+  { id: 'viagem', label: 'Viagem', icon: TravelIcon },
+  { id: 'financeiro', label: 'Financeiro', icon: FinanceIcon },
 ]
 
 export function AppLayout({
@@ -33,6 +46,7 @@ export function AppLayout({
         <div>
           <div className="sidebar-brand">
             <ShellLogo size={42} />
+
             <div>
               <strong>Cuaderno</strong>
               <span>Santiago 2026</span>
@@ -40,16 +54,23 @@ export function AppLayout({
           </div>
 
           <nav className="sidebar-nav">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                className={page === item.id ? 'active' : ''}
-                onClick={() => onNavigate(item.id)}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              const Icon = item.icon
+
+              return (
+                <button
+                  key={item.id}
+                  className={page === item.id ? 'active' : ''}
+                  onClick={() => onNavigate(item.id)}
+                >
+                  <span>
+                    <Icon size={20} />
+                  </span>
+
+                  {item.label}
+                </button>
+              )
+            })}
           </nav>
 
           <div className="sidebar-footer-mobile">

@@ -1,14 +1,23 @@
 import { useMemo, useState } from 'react'
 
-import { useBackpackItems } from '../../data/backpackStore'
-import { useMissionStore } from '../../data/missionStore'
-import type { Mission, MissionCategory } from '../../data/missions'
-
+import {
+  BlockIcon,
+  FreeIcon,
+  LectureIcon,
+  MusicIcon,
+  TaskIcon,
+  TrainingIcon,
+  TravelIcon,
+} from '../../components/icons/AppIcons'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { agendaEvents } from '../../data/agenda'
+import { useBackpackItems } from '../../data/backpackStore'
 import {
   getDaysUntilDeparture,
   getNextEvent,
 } from '../../data/expeditionEngine'
+import { useMissionStore } from '../../data/missionStore'
+import type { Mission, MissionCategory } from '../../data/missions'
 
 const missionCategories: { value: MissionCategory; label: string }[] = [
   { value: 'viagem', label: 'Viagem' },
@@ -22,6 +31,16 @@ const missionCategories: { value: MissionCategory; label: string }[] = [
   { value: 'geral', label: 'Geral' },
 ]
 
+const eventIcons = {
+  treino: TrainingIcon,
+  show: MusicIcon,
+  palestra: LectureIcon,
+  bloqueio: BlockIcon,
+  viagem: TravelIcon,
+  tarefa: TaskIcon,
+  livre: FreeIcon,
+}
+
 function getMissionCategoryLabel(category: MissionCategory) {
   return (
     missionCategories.find((item) => item.value === category)?.label ??
@@ -30,7 +49,7 @@ function getMissionCategoryLabel(category: MissionCategory) {
 }
 
 function formatDate(date: string) {
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
   })
@@ -43,6 +62,7 @@ function formatWeight(grams: number) {
 export function Home() {
   const days = getDaysUntilDeparture()
   const nextEvent = getNextEvent(agendaEvents)
+  const NextEventIcon = nextEvent ? eventIcons[nextEvent.type] : null
 
   const { items } = useBackpackItems()
   const { missions, toggleMission, createMission, updateMission } =
@@ -53,6 +73,8 @@ export function Home() {
   const [missionCategory, setMissionCategory] =
     useState<MissionCategory>('geral')
   const [editingMission, setEditingMission] = useState<Mission | null>(null)
+  const [missionToComplete, setMissionToComplete] =
+    useState<Mission | null>(null)
 
   const nextMissions = missions.filter(
     (mission) => mission.status !== 'done',
@@ -112,6 +134,13 @@ export function Home() {
     resetMissionForm()
   }
 
+  function handleConfirmMissionComplete() {
+    if (!missionToComplete) return
+
+    toggleMission(missionToComplete.id)
+    setMissionToComplete(null)
+  }
+
   return (
     <main className="home-page">
       <div className="home-dashboard">
@@ -131,9 +160,20 @@ export function Home() {
         <section className="next-event-card">
           <p className="eyebrow">Próximo compromisso</p>
 
-          {nextEvent && (
+          {nextEvent && NextEventIcon && (
             <>
-              <h3>📖 {nextEvent.title}</h3>
+              <h3
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                }}
+              >
+                <NextEventIcon size={28} />
+                <span>{nextEvent.title}</span>
+              </h3>
+
               <p className="event-date">{formatDate(nextEvent.date)}</p>
               {nextEvent.note && <p>{nextEvent.note}</p>}
             </>
@@ -191,7 +231,7 @@ export function Home() {
 
                   <button
                     className="mission-done-button"
-                    onClick={() => toggleMission(mission.id)}
+                    onClick={() => setMissionToComplete(mission)}
                     title="Concluir missão"
                   >
                     ✓
@@ -241,6 +281,20 @@ export function Home() {
           )}
         </section>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(missionToComplete)}
+        title="Concluir missão?"
+        message={
+          missionToComplete
+            ? `A missão "${missionToComplete.title}" será marcada como concluída.`
+            : ''
+        }
+        confirmText="Concluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmMissionComplete}
+        onCancel={() => setMissionToComplete(null)}
+      />
     </main>
   )
 }

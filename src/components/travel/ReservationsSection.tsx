@@ -1,4 +1,12 @@
 import { useState } from 'react'
+
+import {
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  TicketIcon,
+} from '../icons/AppIcons'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import type { Reservation } from '../../data/viagemStore'
 
 type ReservationsSectionProps = {
@@ -21,7 +29,7 @@ const emptyReservationForm: Omit<Reservation, 'id'> = {
 function formatDate(date: string) {
   if (!date) return ''
 
-  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -29,7 +37,11 @@ function formatDate(date: string) {
 }
 
 function hasExtraReservationInfo(reservation: Reservation) {
-  return Boolean(reservation.locator || reservation.site || reservation.notes)
+  return Boolean(
+    reservation.locator ||
+      reservation.site ||
+      reservation.notes,
+  )
 }
 
 export function ReservationsSection({
@@ -44,6 +56,8 @@ export function ReservationsSection({
   >(null)
   const [reservationForm, setReservationForm] =
     useState<Omit<Reservation, 'id'>>(emptyReservationForm)
+  const [reservationToDelete, setReservationToDelete] =
+    useState<Reservation | null>(null)
 
   function resetReservationForm() {
     setReservationForm(emptyReservationForm)
@@ -92,12 +106,11 @@ export function ReservationsSection({
     resetReservationForm()
   }
 
-  function handleRemoveReservation(reservation: Reservation) {
-    const confirmed = window.confirm(`Excluir reserva ${reservation.title}?`)
+  function handleConfirmRemoveReservation() {
+    if (!reservationToDelete) return
 
-    if (confirmed) {
-      deleteReservation(reservation.id)
-    }
+    deleteReservation(reservationToDelete.id)
+    setReservationToDelete(null)
   }
 
   function updateReservationField(
@@ -115,17 +128,20 @@ export function ReservationsSection({
       <div className="viagem-card-header">
         <div>
           <p className="eyebrow">Reservas</p>
+
           <h3>
-            <span>🎟️</span>
-            Reservas e compromissos
+            <TicketIcon size={30} />
+            <span>Reservas e compromissos</span>
           </h3>
         </div>
 
         <button
           className="mission-add-button"
           onClick={handleOpenCreateReservation}
+          title="Adicionar reserva"
+          aria-label="Adicionar reserva"
         >
-          +
+          <PlusIcon size={20} strokeWidth={2} />
         </button>
       </div>
 
@@ -168,15 +184,17 @@ export function ReservationsSection({
                 <button
                   onClick={() => handleOpenEditReservation(reservation)}
                   title="Editar reserva"
+                  aria-label="Editar reserva"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleRemoveReservation(reservation)}
+                  onClick={() => setReservationToDelete(reservation)}
                   title="Excluir reserva"
+                  aria-label="Excluir reserva"
                 >
-                  🗑️
+                  <DeleteIcon size={18} />
                 </button>
               </div>
             </article>
@@ -255,6 +273,20 @@ export function ReservationsSection({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(reservationToDelete)}
+        title="Excluir reserva?"
+        message={
+          reservationToDelete
+            ? `A reserva "${reservationToDelete.title}" será removida da viagem.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmRemoveReservation}
+        onCancel={() => setReservationToDelete(null)}
+      />
     </article>
   )
 }
