@@ -158,6 +158,10 @@ button { font: inherit; }
   text-align: center;
 }
 
+.agenda-header {
+  position: relative;
+}
+
 .eyebrow {
   color: var(--color-santiago-red);
   text-transform: uppercase;
@@ -264,22 +268,13 @@ h2 {
 }
 
 .mission-add-button {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: none;
+  width: 34px;
+  height: 34px;
   background: var(--color-santiago-red);
   color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: .2s ease;
+  font-weight: 700;
+  font-size: 20px;
   box-shadow: 0 10px 20px rgba(161,34,45,.18);
-}
-
-.mission-add-button svg {
-  display: block;
 }
 
 .mission-add-button:hover {
@@ -785,7 +780,26 @@ h2 {
 
 @media (max-width: 700px) {
   .agenda-header-top {
-    align-items: center;
+    display: block;
+  }
+
+  .agenda-header-top > div {
+    min-width: 0;
+  }
+
+  .agenda-header-top .mission-add-button {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    z-index: 2;
+  }
+
+  .mission-add-button svg {
+    width: 18px;
+    height: 18px;
   }
 
   .agenda-item {
