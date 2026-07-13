@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import {
   AgendaIcon,
   BackpackIcon,
+  BudgetIcon,
   FinanceIcon,
   HomeIcon,
   TravelIcon,
@@ -14,6 +15,7 @@ type Page =
   | 'mochila'
   | 'viagem'
   | 'financeiro'
+  | 'orcamento'
 
 type AppLayoutProps = {
   page: Page
@@ -24,15 +26,43 @@ type AppLayoutProps = {
 type MenuItem = {
   id: Page
   label: string
-  icon: ComponentType<{ size?: number; className?: string }>
+  icon: ComponentType<{
+    size?: number
+    className?: string
+  }>
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'home', label: 'Cuaderno', icon: HomeIcon },
-  { id: 'agenda', label: 'Agenda', icon: AgendaIcon },
-  { id: 'mochila', label: 'Mochila', icon: BackpackIcon },
-  { id: 'viagem', label: 'Viagem', icon: TravelIcon },
-  { id: 'financeiro', label: 'Financeiro', icon: FinanceIcon },
+  {
+    id: 'home',
+    label: 'Cuaderno',
+    icon: HomeIcon,
+  },
+  {
+    id: 'agenda',
+    label: 'Agenda',
+    icon: AgendaIcon,
+  },
+  {
+    id: 'mochila',
+    label: 'Mochila',
+    icon: BackpackIcon,
+  },
+  {
+    id: 'viagem',
+    label: 'Viagem',
+    icon: TravelIcon,
+  },
+  {
+    id: 'financeiro',
+    label: 'Financeiro',
+    icon: FinanceIcon,
+  },
+  {
+    id: 'orcamento',
+    label: 'Orçamento',
+    icon: BudgetIcon,
+  },
 ]
 
 export function AppLayout({
@@ -87,7 +117,9 @@ export function AppLayout({
         </footer>
       </aside>
 
-      <section className="app-content">{children}</section>
+      <section className="app-content">
+        {children}
+      </section>
     </div>
   )
 }

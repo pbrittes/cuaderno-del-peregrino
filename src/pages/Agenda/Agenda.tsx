@@ -35,6 +35,12 @@ const shortNames = {
   Andrea: 'Deia',
 }
 
+const peopleOptions: AgendaEvent['people'] = [
+  'Pri',
+  'Tania',
+  'Andrea',
+]
+
 function formatDate(date: string) {
   return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -49,14 +55,23 @@ function formatMonth(date: string) {
 }
 
 export function Agenda() {
-  const { events, createEvent, updateEvent, removeEvent } = useAgendaStore()
+  const {
+    events,
+    createEvent,
+    updateEvent,
+    removeEvent,
+  } = useAgendaStore()
+
   const timeline = buildTimeline(events)
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
-  const [type, setType] = useState<AgendaEvent['type']>('treino')
+  const [type, setType] =
+    useState<AgendaEvent['type']>('treino')
+  const [people, setPeople] =
+    useState<AgendaEvent['people']>([...peopleOptions])
   const [formContext, setFormContext] = useState<
     'create' | 'edit' | 'reserve'
   >('create')
@@ -71,6 +86,7 @@ export function Agenda() {
     setTitle('')
     setDate('')
     setType('treino')
+    setPeople([...peopleOptions])
     setEditingId(null)
     setFormContext('create')
     setShowForm(false)
@@ -85,16 +101,41 @@ export function Agenda() {
     setTitle('Treino longo')
     setDate(item.date)
     setType('treino')
+    setPeople([...peopleOptions])
     setEditingId(null)
     setFormContext('reserve')
     setShowForm(true)
   }
 
+  function togglePerson(person: AgendaEvent['people'][number]) {
+    setPeople((currentPeople) =>
+      currentPeople.includes(person)
+        ? currentPeople.filter(
+            (currentPerson) => currentPerson !== person,
+          )
+        : [...currentPeople, person],
+    )
+  }
+
   function handleSaveEvent() {
+    if (!title.trim() || !date || people.length === 0) {
+      return
+    }
+
     if (editingId) {
-      updateEvent(editingId, { title, date, type })
+      updateEvent(editingId, {
+        title,
+        date,
+        type,
+        people,
+      })
     } else {
-      createEvent(title, date, type)
+      createEvent(
+        title,
+        date,
+        type,
+        people,
+      )
     }
 
     resetForm()
@@ -105,11 +146,15 @@ export function Agenda() {
     setTitle(event.title)
     setDate(event.date)
     setType(event.type)
+    setPeople([...event.people])
     setFormContext('edit')
     setShowForm(true)
   }
 
-  function handleRequestRemoveEvent(id: string, eventTitle: string) {
+  function handleRequestRemoveEvent(
+    id: string,
+    eventTitle: string,
+  ) {
     setEventToDelete({
       id,
       title: eventTitle,
@@ -176,7 +221,30 @@ export function Agenda() {
               <option value="tarefa">Tarefa</option>
             </select>
 
-            <div>
+            <div className="participants-block">
+              <span>Quem vai participar?</span>
+
+              <div className="participants-chips">
+                {peopleOptions.map((person) => {
+                  const isActive = people.includes(person)
+
+                  return (
+                    <button
+                      key={person}
+                      type="button"
+                      className={`participant-chip ${
+                        isActive ? 'active' : ''
+                      }`}
+                      onClick={() => togglePerson(person)}
+                    >
+                      {shortNames[person]}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="agenda-form-actions">
               <button onClick={handleSaveEvent}>
                 {formContext === 'edit'
                   ? 'Salvar edição'
@@ -233,7 +301,9 @@ export function Agenda() {
                   {item.people.length > 0 ? (
                     <div className="agenda-people">
                       {item.people.map((person) => (
-                        <span key={person}>{shortNames[person]}</span>
+                        <span key={person}>
+                          {shortNames[person]}
+                        </span>
                       ))}
                     </div>
                   ) : (
@@ -246,7 +316,9 @@ export function Agenda() {
                 {item.automatic ? (
                   <div className="agenda-actions">
                     <button
-                      onClick={() => handleReserveFreeWeekend(item)}
+                      onClick={() =>
+                        handleReserveFreeWeekend(item)
+                      }
                       title="Reservar janela livre"
                       aria-label="Reservar janela livre"
                     >
@@ -257,7 +329,9 @@ export function Agenda() {
                   originalEvent && (
                     <div className="agenda-actions">
                       <button
-                        onClick={() => handleEditEvent(originalEvent)}
+                        onClick={() =>
+                          handleEditEvent(originalEvent)
+                        }
                         title="Editar compromisso"
                         aria-label="Editar compromisso"
                       >
@@ -266,7 +340,10 @@ export function Agenda() {
 
                       <button
                         onClick={() =>
-                          handleRequestRemoveEvent(item.id, item.title)
+                          handleRequestRemoveEvent(
+                            item.id,
+                            item.title,
+                          )
                         }
                         title="Excluir compromisso"
                         aria-label="Excluir compromisso"

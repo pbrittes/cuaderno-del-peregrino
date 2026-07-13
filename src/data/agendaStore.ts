@@ -26,15 +26,16 @@ export function useAgendaStore() {
     title: string,
     date: string,
     type: AgendaEvent['type'],
+    people: AgendaEvent['people'],
   ) {
-    if (!title.trim() || !date) return
+    if (!title.trim() || !date || people.length === 0) return
 
     const event: AgendaEvent = {
       id: crypto.randomUUID(),
       title: title.trim(),
       date,
       type,
-      people: ['Pri', 'Tania', 'Andrea'],
+      people,
       status: 'pendente',
     }
 
@@ -53,13 +54,21 @@ export function useAgendaStore() {
     )
   }
 
-  function updateEvent(id: string, data: Partial<AgendaEvent>) {
+  function updateEvent(
+    id: string,
+    data: Partial<AgendaEvent>,
+  ) {
     setEvents((current) =>
-      current.map((event) =>
-        event.id === id
-          ? { ...event, ...data }
-          : event,
-      ),
+      current
+        .map((event) =>
+          event.id === id
+            ? {
+                ...event,
+                ...data,
+              }
+            : event,
+        )
+        .sort((a, b) => a.date.localeCompare(b.date)),
     )
   }
 

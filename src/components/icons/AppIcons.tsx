@@ -77,6 +77,19 @@ export function FinanceIcon(props: IconProps) {
   )
 }
 
+export function BudgetIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M6 4h12a2 2 0 0 1 2 2v14H4V6a2 2 0 0 1 2-2Z" />
+      <path d="M8 8h8" />
+      <path d="M8 12h3" />
+      <path d="M8 16h3" />
+      <path d="M15 12h1.5a1.5 1.5 0 0 1 0 3H15" />
+      <path d="M15.75 10.5v6" />
+    </svg>
+  )
+}
+
 export function PlusIcon(props: IconProps) {
   return (
     <svg {...iconProps(props)}>

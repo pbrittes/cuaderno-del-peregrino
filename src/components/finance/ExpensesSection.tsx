@@ -9,7 +9,10 @@ import type {
   ExpenseCategory,
   Pilgrim,
 } from '../../data/financas'
-import { pilgrims } from '../../data/financas'
+import {
+  expenseCategories,
+  pilgrims,
+} from '../../data/financas'
 
 type ExpenseFormData = Omit<Expense, 'id'>
 
@@ -19,6 +22,12 @@ type ExpensesSectionProps = {
   updateExpense: (expense: Expense) => void
   deleteExpense: (expenseId: string) => void
 }
+
+type SortOption =
+  | 'newest'
+  | 'oldest'
+  | 'highest'
+  | 'lowest'
 
 const emptyForm: ExpenseFormData = {
   title: '',
@@ -59,14 +68,81 @@ export function ExpensesSection({
   const [expenseToDelete, setExpenseToDelete] =
     useState<Expense | null>(null)
 
-  const orderedExpenses = useMemo(() => {
-    return [...expenses].sort((a, b) => {
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [categoryFilter, setCategoryFilter] =
+    useState<ExpenseCategory | 'all'>('all')
+  const [paidByFilter, setPaidByFilter] =
+    useState<Pilgrim | 'all'>('all')
+  const [participantFilter, setParticipantFilter] =
+    useState<Pilgrim | 'all'>('all')
+  const [sortOption, setSortOption] =
+    useState<SortOption>('newest')
+
+  const visibleExpenses = useMemo(() => {
+    const filteredExpenses = expenses.filter((expense) => {
+      if (startDate && expense.date < startDate) {
+        return false
+      }
+
+      if (endDate && expense.date > endDate) {
+        return false
+      }
+
+      if (
+        categoryFilter !== 'all' &&
+        expense.category !== categoryFilter
+      ) {
+        return false
+      }
+
+      if (
+        paidByFilter !== 'all' &&
+        expense.paidBy !== paidByFilter
+      ) {
+        return false
+      }
+
+      if (
+        participantFilter !== 'all' &&
+        !expense.participants.includes(participantFilter)
+      ) {
+        return false
+      }
+
+      return true
+    })
+
+    return [...filteredExpenses].sort((a, b) => {
+      if (sortOption === 'oldest') {
+        return (
+          new Date(a.date).getTime() -
+          new Date(b.date).getTime()
+        )
+      }
+
+      if (sortOption === 'highest') {
+        return b.amountInBRL - a.amountInBRL
+      }
+
+      if (sortOption === 'lowest') {
+        return a.amountInBRL - b.amountInBRL
+      }
+
       return (
         new Date(b.date).getTime() -
         new Date(a.date).getTime()
       )
     })
-  }, [expenses])
+  }, [
+    expenses,
+    startDate,
+    endDate,
+    categoryFilter,
+    paidByFilter,
+    participantFilter,
+    sortOption,
+  ])
 
   function resetForm() {
     setForm(emptyForm)
@@ -186,13 +262,17 @@ export function ExpensesSection({
         />
       )}
 
-      {orderedExpenses.length === 0 ? (
+      {expenses.length === 0 ? (
         <div className="empty-state">
           <p>Nenhuma despesa cadastrada.</p>
         </div>
+      ) : visibleExpenses.length === 0 ? (
+        <div className="empty-state">
+          <p>Nenhuma despesa encontrada com estes filtros.</p>
+        </div>
       ) : (
         <div className="expenses-list">
-          {orderedExpenses.map((expense) => (
+          {visibleExpenses.map((expense) => (
             <ExpenseCard
               key={expense.id}
               expense={expense}
@@ -202,6 +282,130 @@ export function ExpensesSection({
           ))}
         </div>
       )}
+
+      <div className="finance-filters">
+        <p className="eyebrow">Filtros e ordenação</p>
+
+        <div className="finance-filters-grid">
+          <label className="finance-field">
+            <span>Data inicial</span>
+
+            <input
+              type="date"
+              value={startDate}
+              onChange={(event) =>
+                setStartDate(event.target.value)
+              }
+            />
+          </label>
+
+          <label className="finance-field">
+            <span>Data final</span>
+
+            <input
+              type="date"
+              value={endDate}
+              onChange={(event) =>
+                setEndDate(event.target.value)
+              }
+            />
+          </label>
+
+          <label className="finance-field">
+            <span>Categoria</span>
+
+            <select
+              value={categoryFilter}
+              onChange={(event) =>
+                setCategoryFilter(
+                  event.target.value as
+                    | ExpenseCategory
+                    | 'all',
+                )
+              }
+            >
+              <option value="all">Todas</option>
+
+              {expenseCategories.map((category) => (
+                <option
+                  key={category.value}
+                  value={category.value}
+                >
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="finance-field">
+            <span>Quem pagou</span>
+
+            <select
+              value={paidByFilter}
+              onChange={(event) =>
+                setPaidByFilter(
+                  event.target.value as Pilgrim | 'all',
+                )
+              }
+            >
+              <option value="all">Todas</option>
+
+              {pilgrims.map((pilgrim) => (
+                <option key={pilgrim} value={pilgrim}>
+                  {pilgrim}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="finance-field">
+            <span>Participante</span>
+
+            <select
+              value={participantFilter}
+              onChange={(event) =>
+                setParticipantFilter(
+                  event.target.value as Pilgrim | 'all',
+                )
+              }
+            >
+              <option value="all">Todas</option>
+
+              {pilgrims.map((pilgrim) => (
+                <option key={pilgrim} value={pilgrim}>
+                  {pilgrim}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="finance-field">
+            <span>Ordenação</span>
+
+            <select
+              value={sortOption}
+              onChange={(event) =>
+                setSortOption(
+                  event.target.value as SortOption,
+                )
+              }
+            >
+              <option value="newest">
+                Mais recentes
+              </option>
+              <option value="oldest">
+                Mais antigas
+              </option>
+              <option value="highest">
+                Maior valor
+              </option>
+              <option value="lowest">
+                Menor valor
+              </option>
+            </select>
+          </label>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={Boolean(expenseToDelete)}

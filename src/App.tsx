@@ -7,6 +7,7 @@ import { Agenda } from './pages/Agenda/Agenda'
 import { Mochila } from './pages/Mochila/Mochila'
 import { Viagem } from './pages/Viagem/Viagem'
 import { Financeiro } from './pages/Financeiro/Financeiro'
+import { Orcamento } from './pages/Orcamento/Orcamento'
 
 type Page =
   | 'home'
@@ -14,6 +15,7 @@ type Page =
   | 'mochila'
   | 'viagem'
   | 'financeiro'
+  | 'orcamento'
 
 export default function App() {
   const [page, setPage] = useState<Page>('home')
@@ -25,6 +27,7 @@ export default function App() {
       {page === 'mochila' && <Mochila />}
       {page === 'viagem' && <Viagem />}
       {page === 'financeiro' && <Financeiro />}
+      {page === 'orcamento' && <Orcamento />}
     </AppLayout>
   )
 }

@@ -511,13 +511,37 @@ h2 {
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-size: 20px;
   margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink);
+  transition: .2s ease;
 }
 
-.status-button.tem { background: #dff3e4; }
-.status-button.testar { background: #fff4d6; }
-.status-button.comprar { background: #f8e4e4; }
+.status-button svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  flex-shrink: 0;
+  stroke-width: 2.2;
+  opacity: 1;
+}
+
+.status-button.comprar {
+  background: #f8e4e4;
+  color: #b22222;
+}
+
+.status-button.testar {
+  background: #fff4d6;
+  color: #9b6b00;
+}
+
+.status-button.tem {
+  background: #dff3e4;
+  color: #2e8b57;
+}
 
 .gear-mobile-statuses { display: none; }
 
@@ -639,24 +663,55 @@ h2 {
   color: var(--color-ink);
 }
 
-.agenda-form div {
+.agenda-form .participants-block {
+  display: grid;
+  gap: 10px;
+}
+
+.agenda-form .participants-block > span {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.agenda-form .participants-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agenda-form .participant-chip {
+  border: 1px solid rgba(45,37,32,.12);
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #f3efe9;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.agenda-form .participant-chip.active {
+  border-color: var(--color-santiago-red);
+  background: var(--color-santiago-red);
+  color: white;
+}
+
+.agenda-form-actions {
   display: flex;
   gap: 10px;
 }
 
-.agenda-form button {
+.agenda-form-actions button {
   border: none;
   border-radius: 999px;
   padding: 10px 16px;
   cursor: pointer;
 }
 
-.agenda-form button:first-child {
+.agenda-form-actions button:first-child {
   background: var(--color-santiago-red);
   color: white;
 }
 
-.agenda-form button:last-child {
+.agenda-form-actions button:last-child {
   background: #f3efe9;
   color: var(--color-muted);
 }
