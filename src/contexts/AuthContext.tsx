@@ -13,12 +13,16 @@ type AuthContextValue = {
   session: Session | null
   user: User | null
   loading: boolean
+  passwordRecovery: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (
     email: string,
     password: string,
     displayName: string,
   ) => Promise<void>
+  resetPassword: (email: string) => Promise<void>
+  updatePassword: (password: string) => Promise<void>
+  finishPasswordRecovery: () => void
   signOut: () => Promise<void>
 }
 
@@ -31,6 +35,8 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [passwordRecovery, setPasswordRecovery] =
+    useState(false)
 
   useEffect(() => {
     let active = true
@@ -53,10 +59,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const {
       data: { subscription },
-    } = authService.onAuthStateChange((nextSession) => {
-      setSession(nextSession)
-      setLoading(false)
-    })
+    } = authService.onAuthStateChange(
+      (event, nextSession) => {
+        setSession(nextSession)
+
+        if (event === 'PASSWORD_RECOVERY') {
+          setPasswordRecovery(true)
+        }
+
+        setLoading(false)
+      },
+    )
 
     return () => {
       active = false
@@ -69,6 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       session,
       user: session?.user ?? null,
       loading,
+      passwordRecovery,
 
       async signIn(email, password) {
         await authService.signIn(email, password)
@@ -78,11 +92,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await authService.signUp(email, password, displayName)
       },
 
+      async resetPassword(email) {
+        await authService.resetPassword(email)
+      },
+
+      async updatePassword(password) {
+        await authService.updatePassword(password)
+      },
+
+      finishPasswordRecovery() {
+        setPasswordRecovery(false)
+      },
+
       async signOut() {
         await authService.signOut()
       },
     }),
-    [loading, session],
+    [loading, passwordRecovery, session],
   )
 
   return (

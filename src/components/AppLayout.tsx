@@ -8,6 +8,7 @@ import {
   TravelIcon,
 } from './icons/AppIcons'
 import { ShellLogo } from './ShellLogo'
+import { useAuth } from '../contexts/AuthContext'
 
 type Page =
   | 'home'
@@ -76,6 +77,47 @@ export function AppLayout({
   onNavigate,
   children,
 }: AppLayoutProps) {
+  const { user, signOut } = useAuth()
+
+  const displayName =
+    user?.user_metadata?.display_name ??
+    user?.email ??
+    'Peregrina'
+
+  async function handleSignOut() {
+    try {
+      await signOut()
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível sair.',
+      )
+    }
+  }
+
+  function renderFooter() {
+    return (
+      <>
+        <div className="sidebar-user">
+          <strong>{displayName}</strong>
+
+          <button
+            type="button"
+            className="sidebar-sign-out"
+            onClick={() => void handleSignOut()}
+          >
+            Sair
+          </button>
+        </div>
+
+        <small>Expedición Santiago 2026</small>
+        <strong>Edición VI</strong>
+        <span>Expedición Compartida</span>
+      </>
+    )
+  }
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -110,16 +152,12 @@ export function AppLayout({
           </nav>
 
           <div className="sidebar-footer-mobile">
-            <small>Expedición Santiago 2026</small>
-            <strong>Edición V</strong>
-            <span>Finanzas del Peregrino</span>
+            {renderFooter()}
           </div>
         </div>
 
         <footer className="sidebar-footer">
-          <small>Expedición Santiago 2026</small>
-          <strong>Edición V</strong>
-          <span>Finanzas del Peregrino</span>
+          {renderFooter()}
         </footer>
       </aside>
 

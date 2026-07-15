@@ -1,4 +1,9 @@
-import type { Session, User } from '@supabase/supabase-js'
+import type {
+  AuthChangeEvent,
+  Session,
+  User,
+} from '@supabase/supabase-js'
+
 import { authRepository } from '../repositories'
 
 export class AuthService {
@@ -23,6 +28,24 @@ export class AuthService {
       password,
       displayName,
     )
+
+    if (error) throw error
+
+    return data
+  }
+
+  async resetPassword(email: string) {
+    const { data, error } =
+      await authRepository.resetPassword(email)
+
+    if (error) throw error
+
+    return data
+  }
+
+  async updatePassword(password: string) {
+    const { data, error } =
+      await authRepository.updatePassword(password)
 
     if (error) throw error
 
@@ -55,12 +78,13 @@ export class AuthService {
 
   onAuthStateChange(
     callback: (
+      event: AuthChangeEvent,
       session: Session | null,
     ) => void,
   ) {
     return authRepository.onAuthStateChange(
-      (_event, session) => {
-        callback(session)
+      (event, session) => {
+        callback(event, session)
       },
     )
   }

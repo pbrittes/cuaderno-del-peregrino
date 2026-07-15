@@ -3,10 +3,14 @@ import { ShellLogo } from '../../components/ShellLogo'
 import { useAuth } from '../../contexts/AuthContext'
 import './AuthPage.css'
 
-type AuthMode = 'sign-in' | 'sign-up'
+type AuthMode = 'sign-in' | 'sign-up' | 'forgot-password'
 
 export function AuthPage() {
-  const { signIn, signUp } = useAuth()
+  const {
+    signIn,
+    signUp,
+    resetPassword,
+  } = useAuth()
 
   const [mode, setMode] = useState<AuthMode>('sign-in')
   const [displayName, setDisplayName] = useState('')
@@ -17,8 +21,11 @@ export function AuthPage() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const isSignUp = mode === 'sign-up'
+  const isForgotPassword = mode === 'forgot-password'
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
 
     setMessage('')
@@ -26,17 +33,34 @@ export function AuthPage() {
     setSubmitting(true)
 
     try {
+      if (isForgotPassword) {
+        await resetPassword(email.trim())
+
+        setMessage(
+          'Enviamos um link para redefinir sua senha. Confira seu e-mail.',
+        )
+
+        return
+      }
+
       if (isSignUp) {
-        await signUp(email.trim(), password, displayName.trim())
+        await signUp(
+          email.trim(),
+          password,
+          displayName.trim(),
+        )
 
         setMessage(
           'Conta criada. Confira seu e-mail para confirmar o cadastro antes de entrar.',
         )
+
         setMode('sign-in')
         setPassword('')
-      } else {
-        await signIn(email.trim(), password)
+
+        return
       }
+
+      await signIn(email.trim(), password)
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -52,6 +76,7 @@ export function AuthPage() {
     setMode(nextMode)
     setMessage('')
     setErrorMessage('')
+    setPassword('')
   }
 
   return (
@@ -63,16 +88,25 @@ export function AuthPage() {
 
         <h1>Cuaderno del Peregrino</h1>
 
-        <p className="auth-subtitle">Expedición Compartida</p>
+        <p className="auth-subtitle">
+          {isForgotPassword
+            ? 'Recuperação de senha'
+            : 'Expedición Compartida'}
+        </p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
           {isSignUp && (
             <label>
               Nome
               <input
                 type="text"
                 value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
+                onChange={(event) =>
+                  setDisplayName(event.target.value)
+                }
                 autoComplete="name"
                 required
               />
@@ -84,23 +118,33 @@ export function AuthPage() {
             <input
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               autoComplete="email"
               required
             />
           </label>
 
-          <label>
-            Senha
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete={isSignUp ? 'new-password' : 'current-password'}
-              minLength={6}
-              required
-            />
-          </label>
+          {!isForgotPassword && (
+            <label>
+              Senha
+              <input
+                type="password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                autoComplete={
+                  isSignUp
+                    ? 'new-password'
+                    : 'current-password'
+                }
+                minLength={6}
+                required
+              />
+            </label>
+          )}
 
           {errorMessage && (
             <p className="auth-feedback auth-feedback-error">
@@ -121,23 +165,51 @@ export function AuthPage() {
           >
             {submitting
               ? 'Aguarde...'
-              : isSignUp
-                ? 'Criar conta'
-                : 'Entrar'}
+              : isForgotPassword
+                ? 'Enviar link'
+                : isSignUp
+                  ? 'Criar conta'
+                  : 'Entrar'}
           </button>
         </form>
+
+        {mode === 'sign-in' && (
+          <button
+            className="auth-mode-button"
+            type="button"
+            onClick={() =>
+              changeMode('forgot-password')
+            }
+          >
+            Esqueci minha senha
+          </button>
+        )}
 
         <button
           className="auth-mode-button"
           type="button"
           onClick={() =>
-            changeMode(isSignUp ? 'sign-in' : 'sign-up')
+            changeMode(
+              isSignUp ? 'sign-in' : 'sign-up',
+            )
           }
         >
           {isSignUp
             ? 'Já tenho uma conta'
             : 'Criar minha conta'}
         </button>
+
+        {isForgotPassword && (
+          <button
+            className="auth-mode-button"
+            type="button"
+            onClick={() =>
+              changeMode('sign-in')
+            }
+          >
+            Voltar para o login
+          </button>
+        )}
       </section>
     </main>
   )

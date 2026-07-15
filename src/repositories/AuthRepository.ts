@@ -28,6 +28,21 @@ export class AuthRepository {
     })
   }
 
+  async resetPassword(email: string) {
+    return supabase.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo: window.location.origin,
+      },
+    )
+  }
+
+  async updatePassword(password: string) {
+    return supabase.auth.updateUser({
+      password,
+    })
+  }
+
   async signOut() {
     return supabase.auth.signOut()
   }

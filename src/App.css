@@ -845,4 +845,50 @@ h2 {
 .sidebar-brand .shell-logo {
   color: var(--color-santiago-red);
   flex-shrink: 0;
+}/* ===========================
+   Usuário logado
+=========================== */
+
+.sidebar-user {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(45,37,32,.08);
+}
+
+.sidebar-user strong {
+  color: var(--color-ink);
+  font-size: 15px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.sidebar-sign-out {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  color: var(--color-santiago-red);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity .2s ease;
+}
+
+.sidebar-sign-out:hover {
+  opacity: .7;
+}
+
+@media (max-width:700px) {
+
+  .sidebar-user {
+    align-items: center;
+    text-align: center;
+  }
+
+  .sidebar-sign-out {
+    align-self: center;
+  }
+
 }

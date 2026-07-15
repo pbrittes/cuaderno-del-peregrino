@@ -6,6 +6,8 @@ import { useAuth } from './contexts/AuthContext'
 import { useExpedition } from './contexts/ExpeditionContext'
 
 import { AuthPage } from './pages/Auth/AuthPage'
+import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage'
+
 import { Home } from './pages/Home/Home'
 import { Agenda } from './pages/Agenda/Agenda'
 import { Mochila } from './pages/Mochila/Mochila'
@@ -24,7 +26,11 @@ type Page =
   | 'expedicao'
 
 export default function App() {
-  const { user, loading: authLoading } = useAuth()
+  const {
+    user,
+    loading: authLoading,
+    passwordRecovery,
+  } = useAuth()
 
   const {
     expedition,
@@ -35,6 +41,10 @@ export default function App() {
 
   if (authLoading) {
     return null
+  }
+
+  if (passwordRecovery) {
+    return <ResetPasswordPage />
   }
 
   if (!user) {
