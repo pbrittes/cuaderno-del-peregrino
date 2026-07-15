@@ -16,6 +16,7 @@ type Page =
   | 'viagem'
   | 'financeiro'
   | 'orcamento'
+  | 'expedicao'
 
 type AppLayoutProps = {
   page: Page
@@ -51,6 +52,11 @@ const menuItems: MenuItem[] = [
   {
     id: 'viagem',
     label: 'Viagem',
+    icon: TravelIcon,
+  },
+  {
+    id: 'expedicao',
+    label: 'Expedição',
     icon: TravelIcon,
   },
   {

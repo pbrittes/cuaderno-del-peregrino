@@ -3,9 +3,15 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import './styles/theme.css'
 import App from './App.tsx'
+import { AuthProvider } from './contexts/AuthContext'
+import { ExpeditionProvider } from './contexts/ExpeditionContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <ExpeditionProvider>
+        <App />
+      </ExpeditionProvider>
+    </AuthProvider>
   </StrictMode>,
 )
