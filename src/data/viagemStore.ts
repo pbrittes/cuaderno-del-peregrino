@@ -1,4 +1,13 @@
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+
+import {
+  travelService,
+  type TravelPayload,
+} from '../services/TravelService'
 
 export type Flight = {
   id: string
@@ -62,23 +71,20 @@ export type Reservation = {
   notes: string
 }
 
-type TravelData = {
-  flights: Flight[]
-  stays: Stay[]
-  transfers: Transfer[]
-  documents: TravelDocument[]
-  reservations: Reservation[]
+type CreateFlightInput = Omit<Flight, 'id'>
+type CreateStayInput = Omit<Stay, 'id'>
+type CreateTransferInput = Omit<Transfer, 'id'>
+type CreateTravelDocumentInput =
+  Omit<TravelDocument, 'id'>
+type CreateReservationInput =
+  Omit<Reservation, 'id'>
+
+type UseViagemStoreParams = {
+  userId?: string
+  expeditionId?: string
 }
 
-type CreateFlightInput = Omit<Flight, "id">
-type CreateStayInput = Omit<Stay, "id">
-type CreateTransferInput = Omit<Transfer, "id">
-type CreateTravelDocumentInput = Omit<TravelDocument, "id">
-type CreateReservationInput = Omit<Reservation, "id">
-
-const STORAGE_KEY = "cuaderno-viagem"
-
-const initialTravelData: TravelData = {
+const initialTravelData: TravelPayload = {
   flights: [],
   stays: [],
   transfers: [],
@@ -87,201 +93,387 @@ const initialTravelData: TravelData = {
 }
 
 function createId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  return `${prefix}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 9)}`
 }
 
-function loadTravelData(): TravelData {
-  if (typeof window === "undefined") {
-    return initialTravelData
-  }
-
-  try {
-    const storedData = window.localStorage.getItem(STORAGE_KEY)
-
-    if (!storedData) {
-      return initialTravelData
-    }
-
-    const parsedData = JSON.parse(storedData) as Partial<TravelData>
-
-    return {
-      flights: Array.isArray(parsedData.flights) ? parsedData.flights : [],
-      stays: Array.isArray(parsedData.stays) ? parsedData.stays : [],
-      transfers: Array.isArray(parsedData.transfers) ? parsedData.transfers : [],
-      documents: Array.isArray(parsedData.documents) ? parsedData.documents : [],
-      reservations: Array.isArray(parsedData.reservations)
-        ? parsedData.reservations
-        : [],
-    }
-  } catch (error) {
-    console.error("Erro ao carregar dados de viagem:", error)
-    return initialTravelData
+function normalizeTravelData(
+  payload?: Partial<TravelPayload>,
+): TravelPayload {
+  return {
+    flights: Array.isArray(payload?.flights)
+      ? payload.flights
+      : [],
+    stays: Array.isArray(payload?.stays)
+      ? payload.stays
+      : [],
+    transfers: Array.isArray(payload?.transfers)
+      ? payload.transfers
+      : [],
+    documents: Array.isArray(payload?.documents)
+      ? payload.documents
+      : [],
+    reservations: Array.isArray(
+      payload?.reservations,
+    )
+      ? payload.reservations
+      : [],
   }
 }
 
-function saveTravelData(data: TravelData) {
-  if (typeof window === "undefined") {
-    return
-  }
+export function useViagemStore({
+  userId,
+  expeditionId,
+}: UseViagemStoreParams = {}) {
+  const [travelData, setTravelData] =
+    useState<TravelPayload>(initialTravelData)
 
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  } catch (error) {
-    console.error("Erro ao salvar dados de viagem:", error)
-  }
-}
+  const [loading, setLoading] =
+    useState(true)
 
-export function useViagemStore() {
-  const [travelData, setTravelData] = useState<TravelData>(() => loadTravelData())
+  const [error, setError] =
+    useState<string | null>(null)
+
+  const travelDataRef =
+    useRef<TravelPayload>(initialTravelData)
+
+  function updateLocalData(
+    nextData: TravelPayload,
+  ) {
+    travelDataRef.current = nextData
+    setTravelData(nextData)
+  }
 
   useEffect(() => {
-    saveTravelData(travelData)
-  }, [travelData])
+    let active = true
 
-  function addFlight(flight: CreateFlightInput) {
+    async function loadTravelData() {
+      if (!userId || !expeditionId) {
+        if (active) {
+          updateLocalData(initialTravelData)
+          setLoading(false)
+        }
+
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+
+      try {
+        const document =
+          await travelService.get(expeditionId)
+
+        if (!active) {
+          return
+        }
+
+        if (document) {
+          updateLocalData(
+            normalizeTravelData(
+              document.payload,
+            ),
+          )
+        } else {
+          const createdDocument =
+            await travelService.save(
+              expeditionId,
+              initialTravelData,
+              userId,
+            )
+
+          if (active) {
+            updateLocalData(
+              normalizeTravelData(
+                createdDocument.payload,
+              ),
+            )
+          }
+        }
+      } catch (loadError) {
+        console.error(
+          'Erro ao carregar dados de viagem:',
+          loadError,
+        )
+
+        if (active) {
+          setError(
+            'Não foi possível carregar os dados da viagem.',
+          )
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadTravelData()
+
+    return () => {
+      active = false
+    }
+  }, [userId, expeditionId])
+
+  async function persistTravelData(
+    nextData: TravelPayload,
+  ) {
+    if (!userId || !expeditionId) {
+      return
+    }
+
+    const previousData =
+      travelDataRef.current
+
+    updateLocalData(nextData)
+    setError(null)
+
+    try {
+      await travelService.save(
+        expeditionId,
+        nextData,
+        userId,
+      )
+    } catch (saveError) {
+      console.error(
+        'Erro ao salvar dados de viagem:',
+        saveError,
+      )
+
+      updateLocalData(previousData)
+
+      setError(
+        'Não foi possível salvar os dados da viagem.',
+      )
+    }
+  }
+
+  function addFlight(
+    flight: CreateFlightInput,
+  ) {
     const newFlight: Flight = {
-      id: createId("flight"),
+      id: createId('flight'),
       ...flight,
     }
 
-    setTravelData((currentData) => ({
-      ...currentData,
-      flights: [...currentData.flights, newFlight],
-    }))
+    void persistTravelData({
+      ...travelDataRef.current,
+      flights: [
+        ...travelDataRef.current.flights,
+        newFlight,
+      ],
+    })
   }
 
-  function updateFlight(updatedFlight: Flight) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      flights: currentData.flights.map((flight) =>
-        flight.id === updatedFlight.id ? updatedFlight : flight,
-      ),
-    }))
+  function updateFlight(
+    updatedFlight: Flight,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      flights:
+        travelDataRef.current.flights.map(
+          (flight) =>
+            flight.id === updatedFlight.id
+              ? updatedFlight
+              : flight,
+        ),
+    })
   }
 
-  function deleteFlight(flightId: string) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      flights: currentData.flights.filter((flight) => flight.id !== flightId),
-    }))
+  function deleteFlight(
+    flightId: string,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      flights:
+        travelDataRef.current.flights.filter(
+          (flight) =>
+            flight.id !== flightId,
+        ),
+    })
   }
 
-  function addStay(stay: CreateStayInput) {
+  function addStay(
+    stay: CreateStayInput,
+  ) {
     const newStay: Stay = {
-      id: createId("stay"),
+      id: createId('stay'),
       ...stay,
     }
 
-    setTravelData((currentData) => ({
-      ...currentData,
-      stays: [...currentData.stays, newStay],
-    }))
+    void persistTravelData({
+      ...travelDataRef.current,
+      stays: [
+        ...travelDataRef.current.stays,
+        newStay,
+      ],
+    })
   }
 
-  function updateStay(updatedStay: Stay) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      stays: currentData.stays.map((stay) =>
-        stay.id === updatedStay.id ? updatedStay : stay,
-      ),
-    }))
+  function updateStay(
+    updatedStay: Stay,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      stays:
+        travelDataRef.current.stays.map(
+          (stay) =>
+            stay.id === updatedStay.id
+              ? updatedStay
+              : stay,
+        ),
+    })
   }
 
-  function deleteStay(stayId: string) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      stays: currentData.stays.filter((stay) => stay.id !== stayId),
-    }))
+  function deleteStay(
+    stayId: string,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      stays:
+        travelDataRef.current.stays.filter(
+          (stay) => stay.id !== stayId,
+        ),
+    })
   }
 
-  function addTransfer(transfer: CreateTransferInput) {
+  function addTransfer(
+    transfer: CreateTransferInput,
+  ) {
     const newTransfer: Transfer = {
-      id: createId("transfer"),
+      id: createId('transfer'),
       ...transfer,
     }
 
-    setTravelData((currentData) => ({
-      ...currentData,
-      transfers: [...currentData.transfers, newTransfer],
-    }))
+    void persistTravelData({
+      ...travelDataRef.current,
+      transfers: [
+        ...travelDataRef.current.transfers,
+        newTransfer,
+      ],
+    })
   }
 
-  function updateTransfer(updatedTransfer: Transfer) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      transfers: currentData.transfers.map((transfer) =>
-        transfer.id === updatedTransfer.id ? updatedTransfer : transfer,
-      ),
-    }))
+  function updateTransfer(
+    updatedTransfer: Transfer,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      transfers:
+        travelDataRef.current.transfers.map(
+          (transfer) =>
+            transfer.id ===
+            updatedTransfer.id
+              ? updatedTransfer
+              : transfer,
+        ),
+    })
   }
 
-  function deleteTransfer(transferId: string) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      transfers: currentData.transfers.filter(
-        (transfer) => transfer.id !== transferId,
-      ),
-    }))
+  function deleteTransfer(
+    transferId: string,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      transfers:
+        travelDataRef.current.transfers.filter(
+          (transfer) =>
+            transfer.id !== transferId,
+        ),
+    })
   }
 
-  function addDocument(document: CreateTravelDocumentInput) {
+  function addDocument(
+    document: CreateTravelDocumentInput,
+  ) {
     const newDocument: TravelDocument = {
-      id: createId("document"),
+      id: createId('document'),
       ...document,
     }
 
-    setTravelData((currentData) => ({
-      ...currentData,
-      documents: [...currentData.documents, newDocument],
-    }))
+    void persistTravelData({
+      ...travelDataRef.current,
+      documents: [
+        ...travelDataRef.current.documents,
+        newDocument,
+      ],
+    })
   }
 
-  function updateDocument(updatedDocument: TravelDocument) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      documents: currentData.documents.map((document) =>
-        document.id === updatedDocument.id ? updatedDocument : document,
-      ),
-    }))
+  function updateDocument(
+    updatedDocument: TravelDocument,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      documents:
+        travelDataRef.current.documents.map(
+          (document) =>
+            document.id ===
+            updatedDocument.id
+              ? updatedDocument
+              : document,
+        ),
+    })
   }
 
-  function deleteDocument(documentId: string) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      documents: currentData.documents.filter(
-        (document) => document.id !== documentId,
-      ),
-    }))
+  function deleteDocument(
+    documentId: string,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      documents:
+        travelDataRef.current.documents.filter(
+          (document) =>
+            document.id !== documentId,
+        ),
+    })
   }
 
-  function addReservation(reservation: CreateReservationInput) {
+  function addReservation(
+    reservation: CreateReservationInput,
+  ) {
     const newReservation: Reservation = {
-      id: createId("reservation"),
+      id: createId('reservation'),
       ...reservation,
     }
 
-    setTravelData((currentData) => ({
-      ...currentData,
-      reservations: [...currentData.reservations, newReservation],
-    }))
+    void persistTravelData({
+      ...travelDataRef.current,
+      reservations: [
+        ...travelDataRef.current.reservations,
+        newReservation,
+      ],
+    })
   }
 
-  function updateReservation(updatedReservation: Reservation) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      reservations: currentData.reservations.map((reservation) =>
-        reservation.id === updatedReservation.id ? updatedReservation : reservation,
-      ),
-    }))
+  function updateReservation(
+    updatedReservation: Reservation,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      reservations:
+        travelDataRef.current.reservations.map(
+          (reservation) =>
+            reservation.id ===
+            updatedReservation.id
+              ? updatedReservation
+              : reservation,
+        ),
+    })
   }
 
-  function deleteReservation(reservationId: string) {
-    setTravelData((currentData) => ({
-      ...currentData,
-      reservations: currentData.reservations.filter(
-        (reservation) => reservation.id !== reservationId,
-      ),
-    }))
+  function deleteReservation(
+    reservationId: string,
+  ) {
+    void persistTravelData({
+      ...travelDataRef.current,
+      reservations:
+        travelDataRef.current.reservations.filter(
+          (reservation) =>
+            reservation.id !== reservationId,
+        ),
+    })
   }
 
   return {
@@ -289,7 +481,10 @@ export function useViagemStore() {
     stays: travelData.stays,
     transfers: travelData.transfers,
     documents: travelData.documents,
-    reservations: travelData.reservations,
+    reservations:
+      travelData.reservations,
+    loading,
+    error,
     addFlight,
     updateFlight,
     deleteFlight,
@@ -307,4 +502,3 @@ export function useViagemStore() {
     deleteReservation,
   }
 }
-

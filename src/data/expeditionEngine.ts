@@ -9,6 +9,7 @@ export type TimelineItem = {
   people: Array<'Pri' | 'Tania' | 'Andrea'>
   note?: string
   automatic?: boolean
+  completed?: boolean
 }
 
 function toDate(date: string) {
@@ -39,7 +40,8 @@ function weekendSuggestion(index: number) {
 }
 
 export function buildTimeline(events: AgendaEvent[]): TimelineItem[] {
-  const items: TimelineItem[] = [...events]
+  const activeEvents = events.filter((event) => !event.completed)
+  const items: TimelineItem[] = [...activeEvents]
 
   let current = toDate('2026-07-01')
   const end = toDate('2026-10-25')
@@ -80,7 +82,18 @@ export function buildTimeline(events: AgendaEvent[]): TimelineItem[] {
   return items.sort(
     (a, b) => toDate(a.date).getTime() - toDate(b.date).getTime(),
   )
-}export function getDaysUntilDeparture(
+}
+
+export function buildHistory(events: AgendaEvent[]): TimelineItem[] {
+  return events
+    .filter((event) => event.completed)
+    .sort(
+      (a, b) =>
+        toDate(b.date).getTime() - toDate(a.date).getTime(),
+    )
+}
+
+export function getDaysUntilDeparture(
   departureDate = '2026-10-30',
 ) {
   const today = new Date()
@@ -97,7 +110,11 @@ export function getNextEvent(
   const today = new Date()
 
   return events
-    .filter((event) => toDate(event.date) >= today)
+    .filter(
+      (event) =>
+        !event.completed &&
+        toDate(event.date) >= today,
+    )
     .sort(
       (a, b) =>
         toDate(a.date).getTime() -

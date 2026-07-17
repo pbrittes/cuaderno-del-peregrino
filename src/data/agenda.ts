@@ -7,6 +7,7 @@ export type AgendaEvent = {
   people: Array<'Pri' | 'Tania' | 'Andrea'>
   status: 'confirmado' | 'parcial' | 'pendente'
   note?: string
+  completed?: boolean
 }
 
 export const agendaEvents: AgendaEvent[] = [

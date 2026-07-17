@@ -1,6 +1,8 @@
 import { useState } from 'react'
+
 import {
   BlockIcon,
+  CheckCircleIcon,
   DeleteIcon,
   EditIcon,
   FreeIcon,
@@ -11,10 +13,15 @@ import {
   TrainingIcon,
   TravelIcon,
 } from '../../components/icons/AppIcons'
+
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
+import { useAuth } from '../../contexts/AuthContext'
+import { useExpedition } from '../../contexts/ExpeditionContext'
 import type { AgendaEvent } from '../../data/agenda'
 import { useAgendaStore } from '../../data/agendaStore'
+
 import {
+  buildHistory,
   buildTimeline,
   type TimelineItem,
 } from '../../data/expeditionEngine'
@@ -42,43 +49,76 @@ const peopleOptions: AgendaEvent['people'] = [
 ]
 
 function formatDate(date: string) {
-  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-  })
+  return new Date(`${date}T12:00:00`).toLocaleDateString(
+    'pt-BR',
+    {
+      day: '2-digit',
+      month: 'short',
+    },
+  )
 }
 
 function formatMonth(date: string) {
   return new Date(`${date}T12:00:00`)
-    .toLocaleDateString('pt-BR', { month: 'long' })
+    .toLocaleDateString('pt-BR', {
+      month: 'long',
+    })
     .toUpperCase()
 }
 
 export function Agenda() {
+  const { user } = useAuth()
+  const { expedition } = useExpedition()
+
   const {
     events,
+    loading,
+    error,
+    cloudEnabled,
     createEvent,
     updateEvent,
     removeEvent,
-  } = useAgendaStore()
+    completeEvent,
+    reopenEvent,
+    migrateToSharedAgenda,
+  } = useAgendaStore({
+    userId: user?.id,
+    expeditionId: expedition?.id,
+  })
 
   const timeline = buildTimeline(events)
+  const history = buildHistory(events)
 
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [showForm, setShowForm] =
+    useState(false)
+
+  const [editingId, setEditingId] =
+    useState<string | null>(null)
+
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
+
   const [type, setType] =
     useState<AgendaEvent['type']>('treino')
+
   const [people, setPeople] =
-    useState<AgendaEvent['people']>([...peopleOptions])
-  const [formContext, setFormContext] = useState<
-    'create' | 'edit' | 'reserve'
-  >('create')
-  const [eventToDelete, setEventToDelete] = useState<{
-    id: string
-    title: string
-  } | null>(null)
+    useState<AgendaEvent['people']>([
+      ...peopleOptions,
+    ])
+
+  const [formContext, setFormContext] =
+    useState<'create' | 'edit' | 'reserve'>(
+      'create',
+    )
+
+  const [eventToDelete, setEventToDelete] =
+    useState<{
+      id: string
+      title: string
+    } | null>(null)
+
+  const [migrating, setMigrating] =
+    useState(false)
 
   let currentMonth = ''
 
@@ -97,7 +137,9 @@ export function Agenda() {
     setShowForm(true)
   }
 
-  function handleReserveFreeWeekend(item: TimelineItem) {
+  function handleReserveFreeWeekend(
+    item: TimelineItem,
+  ) {
     setTitle('Treino longo')
     setDate(item.date)
     setType('treino')
@@ -107,18 +149,25 @@ export function Agenda() {
     setShowForm(true)
   }
 
-  function togglePerson(person: AgendaEvent['people'][number]) {
+  function togglePerson(
+    person: AgendaEvent['people'][number],
+  ) {
     setPeople((currentPeople) =>
       currentPeople.includes(person)
         ? currentPeople.filter(
-            (currentPerson) => currentPerson !== person,
+            (currentPerson) =>
+              currentPerson !== person,
           )
         : [...currentPeople, person],
     )
   }
 
   function handleSaveEvent() {
-    if (!title.trim() || !date || people.length === 0) {
+    if (
+      !title.trim() ||
+      !date ||
+      people.length === 0
+    ) {
       return
     }
 
@@ -141,7 +190,9 @@ export function Agenda() {
     resetForm()
   }
 
-  function handleEditEvent(event: AgendaEvent) {
+  function handleEditEvent(
+    event: AgendaEvent,
+  ) {
     setEditingId(event.id)
     setTitle(event.title)
     setDate(event.date)
@@ -168,13 +219,41 @@ export function Agenda() {
     setEventToDelete(null)
   }
 
+  function handleCompleteEvent(id: string) {
+    completeEvent(id)
+  }
+
+  function handleReopenEvent(id: string) {
+    reopenEvent(id)
+  }
+
+  async function handleMigrateAgenda() {
+    setMigrating(true)
+
+    try {
+      await migrateToSharedAgenda()
+    } catch {
+      /*
+       * A mensagem já é tratada pela Store
+       * e exibida na interface.
+       */
+    } finally {
+      setMigrating(false)
+    }
+  }
+
   return (
     <main className="agenda-page">
       <section className="agenda-header">
         <div className="agenda-header-top">
           <div>
-            <p className="eyebrow">Agenda Mestre</p>
-            <h2>Compromissos e janelas livres</h2>
+            <p className="eyebrow">
+              Agenda Mestre
+            </p>
+
+            <h2>
+              Compromissos e janelas livres
+            </h2>
           </div>
 
           <button
@@ -183,20 +262,64 @@ export function Agenda() {
             title="Adicionar compromisso"
             aria-label="Adicionar compromisso"
           >
-            <PlusIcon size={20} strokeWidth={2} />
+            <PlusIcon
+              size={20}
+              strokeWidth={2}
+            />
           </button>
         </div>
 
         <p>
-          Um resumo rápido para enxergar o que já está marcado e onde ainda há
-          espaço para organizar treinos, compras e decisões da expedição.
+          Um resumo rápido para enxergar o que
+          já está marcado e onde ainda há espaço
+          para organizar treinos, compras e
+          decisões da expedição.
         </p>
+
+        {!loading && !cloudEnabled && (
+          <div className="agenda-form">
+            <p>
+              Esta Agenda ainda está salva apenas
+              neste navegador.
+            </p>
+
+            <div className="agenda-form-actions">
+              <button
+                type="button"
+                onClick={handleMigrateAgenda}
+                disabled={
+                  migrating ||
+                  !user ||
+                  !expedition
+                }
+              >
+                {migrating
+                  ? 'Migrando...'
+                  : 'Compartilhar Agenda'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && cloudEnabled && (
+          <p>
+            Agenda compartilhada com a Expedição.
+          </p>
+        )}
+
+        {error && (
+          <p role="alert">
+            {error}
+          </p>
+        )}
 
         {showForm && (
           <div className="agenda-form">
             <input
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={(event) =>
+                setTitle(event.target.value)
+              }
               placeholder="Novo compromisso..."
               autoFocus
             />
@@ -204,48 +327,81 @@ export function Agenda() {
             <input
               type="date"
               value={date}
-              onChange={(event) => setDate(event.target.value)}
+              onChange={(event) =>
+                setDate(event.target.value)
+              }
             />
 
             <select
               value={type}
               onChange={(event) =>
-                setType(event.target.value as AgendaEvent['type'])
+                setType(
+                  event.target
+                    .value as AgendaEvent['type'],
+                )
               }
             >
-              <option value="treino">Treino</option>
-              <option value="show">Show</option>
-              <option value="palestra">Palestra</option>
-              <option value="bloqueio">Bloqueio</option>
-              <option value="viagem">Viagem</option>
-              <option value="tarefa">Tarefa</option>
+              <option value="treino">
+                Treino
+              </option>
+
+              <option value="show">
+                Show
+              </option>
+
+              <option value="palestra">
+                Palestra
+              </option>
+
+              <option value="bloqueio">
+                Bloqueio
+              </option>
+
+              <option value="viagem">
+                Viagem
+              </option>
+
+              <option value="tarefa">
+                Tarefa
+              </option>
             </select>
 
             <div className="participants-block">
-              <span>Quem vai participar?</span>
+              <span>
+                Quem vai participar?
+              </span>
 
               <div className="participants-chips">
-                {peopleOptions.map((person) => {
-                  const isActive = people.includes(person)
+                {peopleOptions.map(
+                  (person) => {
+                    const isActive =
+                      people.includes(person)
 
-                  return (
-                    <button
-                      key={person}
-                      type="button"
-                      className={`participant-chip ${
-                        isActive ? 'active' : ''
-                      }`}
-                      onClick={() => togglePerson(person)}
-                    >
-                      {shortNames[person]}
-                    </button>
-                  )
-                })}
+                    return (
+                      <button
+                        key={person}
+                        type="button"
+                        className={`participant-chip ${
+                          isActive
+                            ? 'active'
+                            : ''
+                        }`}
+                        onClick={() =>
+                          togglePerson(person)
+                        }
+                      >
+                        {shortNames[person]}
+                      </button>
+                    )
+                  },
+                )}
               </div>
             </div>
 
             <div className="agenda-form-actions">
-              <button onClick={handleSaveEvent}>
+              <button
+                onClick={handleSaveEvent}
+              >
                 {formContext === 'edit'
                   ? 'Salvar edição'
                   : formContext === 'reserve'
@@ -253,7 +409,9 @@ export function Agenda() {
                     : 'Salvar'}
               </button>
 
-              <button onClick={resetForm}>Cancelar</button>
+              <button onClick={resetForm}>
+                Cancelar
+              </button>
             </div>
           </div>
         )}
@@ -262,49 +420,78 @@ export function Agenda() {
       <section className="agenda-list">
         {timeline.map((item) => {
           const month = formatMonth(item.date)
-          const showMonth = month !== currentMonth
-          const ItemIcon = itemIcons[item.type]
+
+          const showMonth =
+            month !== currentMonth
+
+          const ItemIcon =
+            itemIcons[item.type]
 
           currentMonth = month
 
           const originalEvent = events.find(
-            (event) => event.id === item.id,
+            (event) =>
+              event.id === item.id,
           )
 
           return (
             <div key={item.id}>
               {showMonth && (
-                <h3 className="timeline-month">{month}</h3>
+                <h3 className="timeline-month">
+                  {month}
+                </h3>
               )}
 
               <article
-                className={`agenda-item ${item.type} ${
-                  item.automatic ? 'automatic' : ''
+                className={`agenda-item ${
+                  item.type
+                } ${
+                  item.automatic
+                    ? 'automatic'
+                    : ''
                 }`}
               >
                 <div className="agenda-date">
-                  <span>{formatDate(item.date)}</span>
+                  <span>
+                    {formatDate(item.date)}
+                  </span>
 
                   {item.endDate && (
-                    <small>até {formatDate(item.endDate)}</small>
+                    <small>
+                      até{' '}
+                      {formatDate(
+                        item.endDate,
+                      )}
+                    </small>
                   )}
                 </div>
 
                 <div className="agenda-content">
                   <strong className="agenda-item-title">
                     <ItemIcon size={20} />
-                    <span>{item.title}</span>
+
+                    <span>
+                      {item.title}
+                    </span>
                   </strong>
 
-                  {item.note && <p>{item.note}</p>}
+                  {item.note && (
+                    <p>{item.note}</p>
+                  )}
 
                   {item.people.length > 0 ? (
                     <div className="agenda-people">
-                      {item.people.map((person) => (
-                        <span key={person}>
-                          {shortNames[person]}
-                        </span>
-                      ))}
+                      {item.people.map(
+                        (person) => (
+                          <span key={person}>
+                            {
+                              shortNames[
+                                person
+                              ]
+                            }
+                          </span>
+                        ),
+                      )}
                     </div>
                   ) : (
                     <div className="agenda-people free">
@@ -317,7 +504,9 @@ export function Agenda() {
                   <div className="agenda-actions">
                     <button
                       onClick={() =>
-                        handleReserveFreeWeekend(item)
+                        handleReserveFreeWeekend(
+                          item,
+                        )
                       }
                       title="Reservar janela livre"
                       aria-label="Reservar janela livre"
@@ -330,12 +519,30 @@ export function Agenda() {
                     <div className="agenda-actions">
                       <button
                         onClick={() =>
-                          handleEditEvent(originalEvent)
+                          handleEditEvent(
+                            originalEvent,
+                          )
                         }
                         title="Editar compromisso"
                         aria-label="Editar compromisso"
                       >
-                        <EditIcon size={18} />
+                        <EditIcon
+                          size={18}
+                        />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleCompleteEvent(
+                            item.id,
+                          )
+                        }
+                        title="Concluir compromisso"
+                        aria-label="Concluir compromisso"
+                      >
+                        <CheckCircleIcon
+                          size={18}
+                        />
                       </button>
 
                       <button
@@ -348,7 +555,9 @@ export function Agenda() {
                         title="Excluir compromisso"
                         aria-label="Excluir compromisso"
                       >
-                        <DeleteIcon size={18} />
+                        <DeleteIcon
+                          size={18}
+                        />
                       </button>
                     </div>
                   )
@@ -358,6 +567,75 @@ export function Agenda() {
           )
         })}
       </section>
+
+      {history.length > 0 && (
+        <section className="agenda-list">
+          <h3 className="timeline-month">
+            HISTÓRICO
+          </h3>
+
+          {history.map((item) => {
+            const ItemIcon =
+              itemIcons[item.type]
+
+            return (
+              <article
+                key={item.id}
+                className={`agenda-item ${item.type}`}
+              >
+                <div className="agenda-date">
+                  <span>
+                    {formatDate(item.date)}
+                  </span>
+
+                  {item.endDate && (
+                    <small>
+                      até{' '}
+                      {formatDate(item.endDate)}
+                    </small>
+                  )}
+                </div>
+
+                <div className="agenda-content">
+                  <strong className="agenda-item-title">
+                    <ItemIcon size={20} />
+
+                    <span>
+                      {item.title}
+                    </span>
+                  </strong>
+
+                  {item.note && (
+                    <p>{item.note}</p>
+                  )}
+
+                  <div className="agenda-people">
+                    {item.people.map(
+                      (person) => (
+                        <span key={person}>
+                          {shortNames[person]}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                <div className="agenda-actions">
+                  <button
+                    onClick={() =>
+                      handleReopenEvent(item.id)
+                    }
+                    title="Reabrir compromisso"
+                    aria-label="Reabrir compromisso"
+                  >
+                    <EditIcon size={18} />
+                  </button>
+                </div>
+              </article>
+            )
+          })}
+        </section>
+      )}
 
       <ConfirmDialog
         open={Boolean(eventToDelete)}
@@ -369,8 +647,12 @@ export function Agenda() {
         }
         confirmText="Excluir"
         cancelText="Cancelar"
-        onConfirm={handleConfirmRemoveEvent}
-        onCancel={() => setEventToDelete(null)}
+        onConfirm={
+          handleConfirmRemoveEvent
+        }
+        onCancel={() =>
+          setEventToDelete(null)
+        }
       />
     </main>
   )

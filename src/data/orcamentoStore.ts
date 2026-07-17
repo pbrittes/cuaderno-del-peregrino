@@ -1,11 +1,23 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 
 import type {
   BudgetItem,
   BudgetItemData,
 } from './orcamento'
 
-const STORAGE_KEY = 'cuaderno-budget-items'
+import { sharedDocumentService } from '../services/SharedDocumentService'
+
+type UseOrcamentoStoreOptions = {
+  userId?: string | null
+  expeditionId?: string | null
+}
+
+type BudgetPayload = {
+  items: BudgetItem[]
+}
 
 function createBudgetItemId(
   gearItemId: string,
@@ -14,75 +26,152 @@ function createBudgetItemId(
   return `budget-${gearItemId}-${pilgrim.toLowerCase()}`
 }
 
-function loadBudgetItems(): BudgetItem[] {
-  if (typeof window === 'undefined') {
-    return []
-  }
-
-  try {
-    const savedItems = window.localStorage.getItem(STORAGE_KEY)
-
-    if (!savedItems) {
-      return []
-    }
-
-    const parsedItems = JSON.parse(savedItems)
-
-    return Array.isArray(parsedItems)
-      ? (parsedItems as BudgetItem[])
-      : []
-  } catch (error) {
-    console.error(
-      'Erro ao carregar o orçamento da mochila:',
-      error,
-    )
-
-    return []
-  }
-}
-
-function saveBudgetItems(items: BudgetItem[]) {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(items),
-    )
-  } catch (error) {
-    console.error(
-      'Erro ao salvar o orçamento da mochila:',
-      error,
-    )
-  }
-}
-
-export function useOrcamentoStore() {
+export function useOrcamentoStore({
+  userId = null,
+  expeditionId = null,
+}: UseOrcamentoStoreOptions = {}) {
   const [budgetItems, setBudgetItems] =
-    useState<BudgetItem[]>(loadBudgetItems)
+    useState<BudgetItem[]>([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const [error, setError] =
+    useState<string | null>(null)
+
+  const [cloudReady, setCloudReady] =
+    useState(false)
 
   useEffect(() => {
-    saveBudgetItems(budgetItems)
-  }, [budgetItems])
+    let active = true
 
-  function saveBudgetItem(itemData: BudgetItemData) {
+    async function loadBudget() {
+      if (!userId || !expeditionId) {
+        if (active) {
+          setLoading(false)
+          setCloudReady(false)
+        }
+
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+
+      try {
+        const document =
+          await sharedDocumentService.getOrCreate<BudgetPayload>(
+            expeditionId,
+            'budget',
+            {
+              items: [],
+            },
+            userId,
+          )
+
+        if (!active) return
+
+        setBudgetItems(
+          document.payload.items ?? [],
+        )
+
+        setCloudReady(true)
+      } catch (loadError) {
+        if (!active) return
+
+        console.error(
+          'Erro ao carregar o orçamento compartilhado:',
+          loadError,
+        )
+
+        setError(
+          'Não foi possível carregar o orçamento compartilhado.',
+        )
+
+        setCloudReady(false)
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadBudget()
+
+    return () => {
+      active = false
+    }
+  }, [expeditionId, userId])
+
+  useEffect(() => {
+    if (
+      !cloudReady ||
+      !userId ||
+      !expeditionId ||
+      loading
+    ) {
+      return
+    }
+
+    const currentUserId = userId
+    const currentExpeditionId =
+      expeditionId
+
+    async function saveBudget() {
+      try {
+        setError(null)
+
+        await sharedDocumentService.save<BudgetPayload>(
+          currentExpeditionId,
+          'budget',
+          {
+            items: budgetItems,
+          },
+          currentUserId,
+        )
+      } catch (saveError) {
+        console.error(
+          'Erro ao salvar o orçamento compartilhado:',
+          saveError,
+        )
+
+        setError(
+          'Não foi possível salvar o orçamento compartilhado.',
+        )
+      }
+    }
+
+    void saveBudget()
+  }, [
+    budgetItems,
+    cloudReady,
+    expeditionId,
+    loading,
+    userId,
+  ])
+
+  function saveBudgetItem(
+    itemData: BudgetItemData,
+  ) {
     setBudgetItems((currentItems) => {
-      const existingItem = currentItems.find(
-        (item) =>
-          item.gearItemId === itemData.gearItemId &&
-          item.pilgrim === itemData.pilgrim,
-      )
+      const existingItem =
+        currentItems.find(
+          (item) =>
+            item.gearItemId ===
+              itemData.gearItemId &&
+            item.pilgrim ===
+              itemData.pilgrim,
+        )
 
       if (existingItem) {
-        return currentItems.map((item) =>
-          item.id === existingItem.id
-            ? {
-                ...item,
-                ...itemData,
-              }
-            : item,
+        return currentItems.map(
+          (item) =>
+            item.id === existingItem.id
+              ? {
+                  ...item,
+                  ...itemData,
+                }
+              : item,
         )
       }
 
@@ -94,7 +183,10 @@ export function useOrcamentoStore() {
         ...itemData,
       }
 
-      return [...currentItems, newItem]
+      return [
+        ...currentItems,
+        newItem,
+      ]
     })
   }
 
@@ -111,6 +203,8 @@ export function useOrcamentoStore() {
 
   return {
     budgetItems,
+    loading,
+    error,
     saveBudgetItem,
     getBudgetItem,
   }

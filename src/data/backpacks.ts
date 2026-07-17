@@ -17,6 +17,8 @@ export type GearItem = {
   category: GearCategory
   weight: number
   status: Record<Pilgrim, GearStatus>
+  owner?: Pilgrim
+  custom?: boolean
 }
 
 export const gearItems: GearItem[] = [
