@@ -1,12 +1,18 @@
-import type { ComponentType, ReactNode } from 'react'
+import type {
+  ComponentType,
+  ReactNode,
+} from 'react'
+
 import {
   AgendaIcon,
   BackpackIcon,
   BudgetIcon,
   FinanceIcon,
   HomeIcon,
+  RouteIcon,
   TravelIcon,
 } from './icons/AppIcons'
+
 import { ShellLogo } from './ShellLogo'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -15,6 +21,7 @@ type Page =
   | 'agenda'
   | 'mochila'
   | 'viagem'
+  | 'roteiro'
   | 'financeiro'
   | 'orcamento'
   | 'expedicao'
@@ -54,6 +61,11 @@ const menuItems: MenuItem[] = [
     id: 'viagem',
     label: 'Viagem',
     icon: TravelIcon,
+  },
+  {
+    id: 'roteiro',
+    label: 'Roteiro',
+    icon: RouteIcon,
   },
   {
     id: 'expedicao',
@@ -138,8 +150,14 @@ export function AppLayout({
               return (
                 <button
                   key={item.id}
-                  className={page === item.id ? 'active' : ''}
-                  onClick={() => onNavigate(item.id)}
+                  className={
+                    page === item.id
+                      ? 'active'
+                      : ''
+                  }
+                  onClick={() =>
+                    onNavigate(item.id)
+                  }
                 >
                   <span>
                     <Icon size={20} />

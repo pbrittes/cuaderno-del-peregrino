@@ -1,0 +1,518 @@
+.roteiro-page {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.roteiro-page-header {
+  position: relative;
+  display: flex;
+  min-height: 190px;
+  margin-bottom: 24px;
+  padding: 34px 74px 34px 34px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(90, 77, 68, 0.14);
+  border-radius: 18px;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 10px 30px rgba(70, 53, 43, 0.06);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.roteiro-page-header > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.roteiro-page-header h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.roteiro-page-header p {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: var(--color-text-muted, #6f6862);
+  line-height: 1.55;
+}
+
+.roteiro-header-add-button {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  display: inline-flex;
+  width: 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-santiago-red, #8f2f2f);
+  border-radius: 50%;
+  background: var(--color-santiago-red, #8f2f2f);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.roteiro-header-add-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(143, 47, 47, 0.22);
+}
+
+.roteiro-header-add-button:active {
+  transform: translateY(0);
+}
+
+.roteiro-header-add-button:focus-visible,
+.roteiro-button-primary:focus-visible,
+.roteiro-button-secondary:focus-visible,
+.roteiro-card-footer button:focus-visible,
+.roteiro-history-toggle:focus-visible {
+  outline: 3px solid rgba(143, 47, 47, 0.22);
+  outline-offset: 2px;
+}
+
+.roteiro-section {
+  width: 100%;
+}
+
+.roteiro-button-primary,
+.roteiro-button-secondary {
+  display: inline-flex;
+  min-height: 42px;
+  padding: 0 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.roteiro-button-primary {
+  border: 1px solid var(--color-santiago-red, #8f2f2f);
+  background: var(--color-santiago-red, #8f2f2f);
+  color: #fff;
+}
+
+.roteiro-button-secondary {
+  border: 1px solid rgba(90, 77, 68, 0.22);
+  background: transparent;
+  color: inherit;
+}
+
+.roteiro-button-primary:hover {
+  box-shadow: 0 6px 14px rgba(143, 47, 47, 0.18);
+}
+
+.roteiro-button-secondary:hover {
+  background: rgba(90, 77, 68, 0.05);
+}
+
+.roteiro-form-card,
+.roteiro-card,
+.roteiro-empty-card {
+  border: 1px solid rgba(90, 77, 68, 0.14);
+  border-radius: 16px;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 10px 30px rgba(70, 53, 43, 0.06);
+}
+
+.roteiro-form-card {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.roteiro-form-card h2 {
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+}
+
+.roteiro-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.roteiro-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.roteiro-form label > span {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.roteiro-form-full {
+  grid-column: 1 / -1;
+}
+
+.roteiro-form input,
+.roteiro-form textarea {
+  width: 100%;
+  border: 1px solid rgba(90, 77, 68, 0.22);
+  border-radius: 10px;
+  background: var(--color-background, #fffdf9);
+  color: inherit;
+  font: inherit;
+  box-sizing: border-box;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.roteiro-form input:focus,
+.roteiro-form textarea:focus {
+  border-color: var(--color-santiago-red, #8f2f2f);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(143, 47, 47, 0.1);
+}
+
+.roteiro-form input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.roteiro-form textarea {
+  padding: 11px 12px;
+  resize: vertical;
+}
+
+.roteiro-form-actions {
+  display: flex;
+  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.roteiro-list {
+  display: grid;
+  gap: 16px;
+}
+
+.roteiro-card {
+  padding: 22px;
+}
+
+.roteiro-card-completed {
+  border-color: rgba(90, 77, 68, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+
+.roteiro-card-completed .roteiro-card-date,
+.roteiro-card-completed .roteiro-card-day,
+.roteiro-card-completed .roteiro-card-summary,
+.roteiro-card-completed .roteiro-card-overnight,
+.roteiro-card-completed .roteiro-card-notes {
+  opacity: 0.78;
+}
+
+.roteiro-card-header {
+  display: block;
+}
+
+.roteiro-card-date {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roteiro-card-day {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--color-text-muted, #6f6862);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.roteiro-card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.roteiro-card-summary {
+  max-width: 82%;
+  margin: 18px 0;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.roteiro-card-overnight {
+  display: flex;
+  padding: 14px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-top: 1px solid rgba(90, 77, 68, 0.12);
+  border-bottom: 1px solid rgba(90, 77, 68, 0.12);
+  text-align: center;
+}
+
+.roteiro-card-overnight span:first-child {
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.roteiro-card-overnight span:nth-child(2) {
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.roteiro-card-overnight strong {
+  font-size: 1rem;
+}
+
+.roteiro-card-notes {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(90, 77, 68, 0.035);
+}
+
+.roteiro-card-notes > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-text-muted, #6f6862);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.roteiro-card-notes p {
+  margin: 0;
+  color: var(--color-text-muted, #6f6862);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.roteiro-card-footer {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.roteiro-card-footer button {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-santiago-red, #8f2f2f);
+  font: inherit;
+  cursor: pointer;
+}
+
+.roteiro-card-footer button:hover {
+  background: rgba(143, 47, 47, 0.08);
+}
+
+.roteiro-card-footer .roteiro-card-status-button {
+  width: auto;
+  min-width: 0;
+  height: 30px;
+  margin-right: 6px;
+  padding: 0 10px;
+  border: 1px solid rgba(143, 47, 47, 0.22);
+  border-radius: 8px;
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.roteiro-card-footer .roteiro-card-status-button:hover {
+  border-color: rgba(143, 47, 47, 0.38);
+  background: rgba(143, 47, 47, 0.07);
+}
+
+.roteiro-history {
+  margin-top: 24px;
+}
+
+.roteiro-history-toggle {
+  display: grid;
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 16px;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(90, 77, 68, 0.14);
+  border-radius: 14px;
+  background: var(--color-surface, #fff);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(70, 53, 43, 0.05);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.roteiro-history-toggle:hover {
+  border-color: rgba(143, 47, 47, 0.22);
+  background: rgba(143, 47, 47, 0.025);
+}
+
+.roteiro-history-toggle span:first-child {
+  color: var(--color-santiago-red, #8f2f2f);
+  font-weight: 800;
+}
+
+.roteiro-history-toggle span:nth-child(2) {
+  color: var(--color-text-muted, #6f6862);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.roteiro-history-toggle span:last-child {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(143, 47, 47, 0.08);
+  color: var(--color-santiago-red, #8f2f2f);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.roteiro-history-list {
+  display: grid;
+  margin-top: 14px;
+  gap: 14px;
+}
+
+.roteiro-empty-card {
+  display: flex;
+  min-height: 170px;
+  padding: 32px 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.roteiro-empty-card strong {
+  font-size: 1rem;
+}
+
+.roteiro-empty-card span,
+.roteiro-empty,
+.roteiro-error {
+  color: var(--color-text-muted, #6f6862);
+}
+
+.roteiro-empty {
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.roteiro-error {
+  margin: 0 0 14px;
+}
+
+@media (max-width: 720px) {
+  .roteiro-page-header {
+    min-height: 180px;
+    margin-bottom: 20px;
+    padding: 58px 24px 28px;
+  }
+
+  .roteiro-header-add-button {
+    top: 16px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .roteiro-page-header p {
+    max-width: 100%;
+  }
+
+  .roteiro-form-card {
+    padding: 20px 17px;
+  }
+
+  .roteiro-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roteiro-form-full {
+    grid-column: auto;
+  }
+
+  .roteiro-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .roteiro-button-primary,
+  .roteiro-button-secondary {
+    width: 100%;
+  }
+
+  .roteiro-card {
+    padding: 18px 17px;
+  }
+
+  .roteiro-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .roteiro-card-summary {
+    max-width: 100%;
+  }
+
+  .roteiro-card-overnight {
+    gap: 6px;
+  }
+
+  .roteiro-history-toggle {
+    grid-template-columns: 1fr auto;
+  }
+
+  .roteiro-history-toggle span:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .roteiro-history-toggle span:last-child {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+}

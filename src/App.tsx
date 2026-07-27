@@ -12,6 +12,7 @@ import { Home } from './pages/Home/Home'
 import { Agenda } from './pages/Agenda/Agenda'
 import { Mochila } from './pages/Mochila/Mochila'
 import { Viagem } from './pages/Viagem/Viagem'
+import { Roteiro } from './pages/Roteiro/Roteiro'
 import { Financeiro } from './pages/Financeiro/Financeiro'
 import { Orcamento } from './pages/Orcamento/Orcamento'
 import { Expedicao } from './pages/Expedicao/Expedicao'
@@ -21,6 +22,7 @@ type Page =
   | 'agenda'
   | 'mochila'
   | 'viagem'
+  | 'roteiro'
   | 'financeiro'
   | 'orcamento'
   | 'expedicao'
@@ -37,7 +39,8 @@ export default function App() {
     loading: expeditionLoading,
   } = useExpedition()
 
-  const [page, setPage] = useState<Page>('home')
+  const [page, setPage] =
+    useState<Page>('home')
 
   if (authLoading) {
     return null
@@ -56,14 +59,24 @@ export default function App() {
   }
 
   return (
-    <AppLayout page={page} onNavigate={setPage}>
+    <AppLayout
+      page={page}
+      onNavigate={setPage}
+    >
       {page === 'home' && <Home />}
       {page === 'agenda' && <Agenda />}
       {page === 'mochila' && <Mochila />}
       {page === 'viagem' && <Viagem />}
-      {page === 'financeiro' && <Financeiro />}
-      {page === 'orcamento' && <Orcamento />}
-      {page === 'expedicao' && <Expedicao />}
+      {page === 'roteiro' && <Roteiro />}
+      {page === 'financeiro' && (
+        <Financeiro />
+      )}
+      {page === 'orcamento' && (
+        <Orcamento />
+      )}
+      {page === 'expedicao' && (
+        <Expedicao />
+      )}
     </AppLayout>
   )
 }

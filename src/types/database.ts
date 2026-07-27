@@ -1,10 +1,11 @@
 export type ModuleName =
-  | "agenda"
-  | "backpack"
-  | "missions"
-  | "travel"
-  | "finance"
-  | "budget"
+  | 'agenda'
+  | 'backpack'
+  | 'missions'
+  | 'travel'
+  | 'finance'
+  | 'budget'
+  | 'itinerary'
 
 export interface SharedDocument<T = unknown> {
   id: string

@@ -308,4 +308,14 @@ export function DocumentIcon(props: IconProps) {
       <path d="M9 16h6" />
     </svg>
   )
+}export function RouteIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <circle cx="6" cy="18" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="18" cy="6" r="1.8" />
+      <path d="M7.5 16.5 10.5 13.5" />
+      <path d="M13.5 10.5 16.5 7.5" />
+    </svg>
+  )
 }
