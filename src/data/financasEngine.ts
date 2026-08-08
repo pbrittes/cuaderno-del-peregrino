@@ -54,6 +54,10 @@ function round(value: number) {
   return Math.round(value * 100) / 100
 }
 
+function getPairKey(first: Pilgrim, second: Pilgrim) {
+  return [first, second].sort().join('::')
+}
+
 function hasParticipantPaid(
   expense: Expense,
   participant: Pilgrim,
@@ -156,11 +160,15 @@ function calculateGrossDebts(expenses: Expense[]) {
 function applySettlements(
   debts: Record<Pilgrim, Record<Pilgrim, number>>,
   settlements: FinancialSettlement[],
+  eligiblePairs: Set<string>,
 ) {
   for (const settlement of settlements) {
     if (
       settlement.from === settlement.to ||
-      settlement.amountInBRL <= 0
+      settlement.amountInBRL <= 0 ||
+      !eligiblePairs.has(
+        getPairKey(settlement.from, settlement.to),
+      )
     ) {
       continue
     }
@@ -242,12 +250,24 @@ function calculateBaseDebts(expenses: Expense[]) {
   return convertDebtMatrixToList(debtMatrix)
 }
 
+function getEligibleSettlementPairs(
+  baseDebts: FinanceDebt[],
+) {
+  return new Set(
+    baseDebts.map((debt) =>
+      getPairKey(debt.from, debt.to),
+    ),
+  )
+}
+
 function calculatePeople(
   expenses: Expense[],
   baseDebts: FinanceDebt[],
   settlements: FinancialSettlement[],
 ) {
   const people = createPeopleSummary()
+  const eligiblePairs =
+    getEligibleSettlementPairs(baseDebts)
 
   for (const expense of expenses) {
     const amount = expense.amountInBRL
@@ -272,7 +292,10 @@ function calculatePeople(
   for (const settlement of settlements) {
     if (
       settlement.from === settlement.to ||
-      settlement.amountInBRL <= 0
+      settlement.amountInBRL <= 0 ||
+      !eligiblePairs.has(
+        getPairKey(settlement.from, settlement.to),
+      )
     ) {
       continue
     }
@@ -305,7 +328,26 @@ function calculateDebts(
 ) {
   const debtMatrix = calculateGrossDebts(expenses)
 
-  applySettlements(debtMatrix, settlements)
+  const baseDebtMatrix = createDebtMatrix()
+
+  for (const from of pilgrims) {
+    for (const to of pilgrims) {
+      baseDebtMatrix[from][to] = debtMatrix[from][to]
+    }
+  }
+
+  compensateReciprocalDebts(baseDebtMatrix)
+
+  const eligiblePairs =
+    getEligibleSettlementPairs(
+      convertDebtMatrixToList(baseDebtMatrix),
+    )
+
+  applySettlements(
+    debtMatrix,
+    settlements,
+    eligiblePairs,
+  )
   compensateReciprocalDebts(debtMatrix)
 
   return convertDebtMatrixToList(debtMatrix)

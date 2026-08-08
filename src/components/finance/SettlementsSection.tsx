@@ -100,6 +100,12 @@ function calculateNetSettlements(
     }
   >()
 
+  const activePairs = new Set(
+    debts.map((debt) =>
+      getPairKey(debt.from, debt.to),
+    ),
+  )
+
   function addMovement(
     from: SettlementDebt['from'],
     to: SettlementDebt['to'],
@@ -131,6 +137,17 @@ function calculateNetSettlements(
   })
 
   registeredSettlements.forEach((settlement) => {
+    if (
+      !activePairs.has(
+        getPairKey(
+          settlement.from,
+          settlement.to,
+        ),
+      )
+    ) {
+      return
+    }
+
     addMovement(
       settlement.from,
       settlement.to,
@@ -253,6 +270,24 @@ export function SettlementsSection({
       ),
     [calculatedSettlements, settlements],
   )
+
+  const orphanSettlements = useMemo(() => {
+    const activePairs = new Set(
+      calculatedSettlements.map((debt) =>
+        getPairKey(debt.from, debt.to),
+      ),
+    )
+
+    return settlements.filter(
+      (settlement) =>
+        !activePairs.has(
+          getPairKey(
+            settlement.from,
+            settlement.to,
+          ),
+        ),
+    )
+  }, [calculatedSettlements, settlements])
 
   function resetForm() {
     setSelectedDebt(null)
@@ -755,6 +790,77 @@ export function SettlementsSection({
         </div>
       )}
 
+
+      {orphanSettlements.length > 0 && (
+        <div className="expenses-list settlement-groups">
+          {orphanSettlements.map((payment) => (
+            <article
+              key={payment.id}
+              className="expense-placeholder settlement-group-card settlement-group-card-pending"
+            >
+              <div className="settlement-group-header">
+                <div className="settlement-route-details">
+                  <div className="settlement-person settlement-person-from">
+                    <span>Quem pagou</span>
+                    <strong>{payment.from}</strong>
+                  </div>
+
+                  <div className="settlement-person settlement-person-to">
+                    <span>Quem recebeu</span>
+                    <strong>{payment.to}</strong>
+                  </div>
+                </div>
+
+                <span className="settlement-group-status">
+                  Sem acerto ativo
+                </span>
+              </div>
+
+              <div className="settlement-payments">
+                <p className="settlement-payments-title">
+                  Pagamento registrado
+                </p>
+
+                <div className="settlement-payments-list">
+                  <div className="expense-placeholder settlement-payment-card">
+                    <div className="settlement-payment-content">
+                      <span className="settlement-payment-date">
+                        {formatDate(payment.date)}{' · '}
+                        {payment.from} → {payment.to}
+                      </span>
+
+                      <strong className="settlement-payment-amount">
+                        {formatCurrency(payment.amount)}
+                      </strong>
+
+                      {payment.notes && (
+                        <p className="settlement-payment-notes">
+                          {payment.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="settlement-payment-actions">
+                      <button
+                        type="button"
+                        className="icon-button settlement-action-button settlement-delete-button"
+                        onClick={() =>
+                          handleDelete(payment.id)
+                        }
+                        disabled={!deleteSettlement}
+                        aria-label="Excluir pagamento"
+                        title="Excluir pagamento"
+                      >
+                        <DeleteIcon size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
     </section>
   )
