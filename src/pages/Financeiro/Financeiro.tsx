@@ -1,5 +1,16 @@
-import type { ComponentType } from 'react'
+import {
+  useState,
+  type ComponentType,
+} from 'react'
 
+import { ExpensesSection } from '../../components/finance/ExpensesSection'
+import {
+  FinanceQuerySection,
+  type ExpenseSortOption,
+  type FinanceQueryType,
+} from '../../components/finance/FinanceQuerySection'
+import { FinanceSummaryCard } from '../../components/finance/FinanceSummaryCard'
+import { SettlementsSection } from '../../components/finance/SettlementsSection'
 import {
   FoodIcon,
   LodgingIcon,
@@ -9,14 +20,14 @@ import {
   TicketIcon,
   TransportIcon,
 } from '../../components/icons/AppIcons'
-import { ExpensesSection } from '../../components/finance/ExpensesSection'
-import { FinanceSummaryCard } from '../../components/finance/FinanceSummaryCard'
-import { SettlementsSection } from '../../components/finance/SettlementsSection'
 
 import { useAuth } from '../../contexts/AuthContext'
 import { useExpedition } from '../../contexts/ExpeditionContext'
 
-import type { ExpenseCategory } from '../../data/financas'
+import type {
+  ExpenseCategory,
+  Pilgrim,
+} from '../../data/financas'
 import { calculateFinanceSummary } from '../../data/financasEngine'
 import { useFinancasStore } from '../../data/financasStore'
 
@@ -93,20 +104,54 @@ export function Financeiro() {
   const { user } = useAuth()
   const { expedition } = useExpedition()
 
+  const [queryType, setQueryType] =
+    useState<FinanceQueryType>('expenses')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [categoryFilter, setCategoryFilter] =
+    useState<ExpenseCategory | 'all'>('all')
+  const [paidByFilter, setPaidByFilter] =
+    useState<Pilgrim | 'all'>('all')
+  const [participantFilter, setParticipantFilter] =
+    useState<Pilgrim | 'all'>('all')
+  const [sortOption, setSortOption] =
+    useState<ExpenseSortOption>('newest')
+
   const {
     expenses,
+    settlements,
     loading,
     error,
     addExpense,
+    addExpenses,
     updateExpense,
+    updateExpenses,
     deleteExpense,
+    deleteExpenses,
+    addSettlement,
+    updateSettlement,
+    deleteSettlement,
   } = useFinancasStore({
     userId: user?.id,
     expeditionId: expedition?.id,
   })
 
-  const summary =
-    calculateFinanceSummary(expenses)
+  const financialSettlements = settlements.map(
+    (settlement) => ({
+      from: settlement.from,
+      to: settlement.to,
+      amountInBRL: settlement.amount,
+    }),
+  )
+
+  const summary = calculateFinanceSummary(
+    expenses,
+    financialSettlements,
+  )
+
+  console.log('EXPENSES', expenses)
+  console.log('SETTLEMENTS', settlements)
+  console.log('SUMMARY', summary)
 
   const donutBackground =
     buildDonutBackground(summary.categories)
@@ -198,8 +243,7 @@ export function Financeiro() {
                               style={{
                                 background:
                                   categoryColors[
-                                    item
-                                      .category
+                                    item.category
                                   ],
                               }}
                             />
@@ -228,9 +272,33 @@ export function Financeiro() {
               </div>
             </article>
 
-            <SettlementsSection
-              expenses={expenses}
-            />
+            <article className="finance-summary-card">
+              <p className="eyebrow finance-card-title">
+                Acerto financeiro
+              </p>
+
+              {summary.debts.length === 0 ? (
+                <p>
+                  Todas as contas estão acertadas.
+                </p>
+              ) : (
+                summary.debts.map((debt) => (
+                  <div
+                    key={`${debt.from}-${debt.to}`}
+                  >
+                    <strong>
+                      {debt.from} → {debt.to}
+                    </strong>
+
+                    <p>
+                      {formatCurrency(
+                        debt.amount,
+                      )}
+                    </p>
+                  </div>
+                ))
+              )}
+            </article>
           </section>
 
           <section className="finance-summary-grid">
@@ -283,13 +351,77 @@ export function Financeiro() {
           <section className="finance-grid">
             <ExpensesSection
               expenses={expenses}
+              query={{
+                startDate,
+                endDate,
+                categoryFilter,
+                paidByFilter,
+                participantFilter,
+                sortOption,
+              }}
               addExpense={addExpense}
+              addExpenses={addExpenses}
               updateExpense={
                 updateExpense
+              }
+              updateExpenses={
+                updateExpenses
+              }
+              setExpensePaid={() =>
+                undefined
+              }
+              setParticipantPayment={() =>
+                undefined
               }
               deleteExpense={
                 deleteExpense
               }
+              deleteExpenses={
+                deleteExpenses
+              }
+            />
+          </section>
+
+          <section className="finance-grid">
+            <SettlementsSection
+              expenses={expenses}
+              settlements={settlements}
+              addSettlement={addSettlement}
+              updateSettlement={
+                updateSettlement
+              }
+              deleteSettlement={
+                deleteSettlement
+              }
+            />
+          </section>
+
+          <section className="finance-grid">
+            <FinanceQuerySection
+              queryType={queryType}
+              setQueryType={setQueryType}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              categoryFilter={
+                categoryFilter
+              }
+              setCategoryFilter={
+                setCategoryFilter
+              }
+              paidByFilter={paidByFilter}
+              setPaidByFilter={
+                setPaidByFilter
+              }
+              participantFilter={
+                participantFilter
+              }
+              setParticipantFilter={
+                setParticipantFilter
+              }
+              sortOption={sortOption}
+              setSortOption={setSortOption}
             />
           </section>
         </>

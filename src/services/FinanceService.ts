@@ -1,10 +1,15 @@
-import type { Expense } from '../data/financas'
+import type {
+  Expense,
+  Settlement,
+} from '../data/financas'
+
 import type { SharedDocument } from '../types/database'
 
 import { sharedDocumentRepository } from '../repositories/SharedDocumentRepository'
 
 export type FinancePayload = {
   expenses: Expense[]
+  settlements: Settlement[]
 }
 
 export class FinanceService {

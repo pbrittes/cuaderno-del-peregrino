@@ -1,0 +1,442 @@
+/* ===== Expense Card ===== */
+
+.expense-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(45, 37, 32, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(45, 37, 32, 0.04);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.expense-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.expense-card.open {
+  border-color: rgba(161, 34, 45, 0.2);
+}
+
+.expense-card-clickable {
+  cursor: pointer;
+}
+
+.expense-card-header {
+  display: grid;
+  gap: 0;
+}
+
+.expense-card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  column-gap: 24px;
+  row-gap: 2px;
+  align-items: center;
+}
+
+.expense-card-main::after {
+  content: 'Data';
+  grid-column: 1;
+  grid-row: 3;
+  justify-self: start;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.expense-card-title-group,
+.expense-card-financial {
+  display: contents;
+}
+
+.expense-card-title-group {
+  min-width: 0;
+  text-align: left;
+}
+
+.expense-card-title-group h3 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-title);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.expense-category {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+.expense-category svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  display: block;
+  color: var(--color-santiago-red);
+}
+
+.expense-category span {
+  display: block;
+}
+
+.expense-card-financial {
+  text-align: right;
+}
+
+.expense-value {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  color: var(--color-santiago-red);
+  font-family: var(--font-title);
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.expense-date {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: end;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.expense-card-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(45, 37, 32, 0.08);
+}
+
+.expense-installment-info {
+  display: none;
+}
+
+.expense-payer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  color: var(--color-text);
+}
+
+.expense-payer > span {
+  justify-self: start;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.expense-payer > strong {
+  justify-self: end;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.expense-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* O controle de pagamento permanece disponível na área expandida. */
+.expense-card-actions .expense-action-button:first-child {
+  display: none;
+}
+
+.expense-card-actions button,
+.expense-action-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(45, 37, 32, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-santiago-red);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.expense-card-actions button svg,
+.expense-action-button svg {
+  display: block;
+}
+
+.expense-card-actions button:hover,
+.expense-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(161, 34, 45, 0.28);
+  box-shadow: 0 6px 14px rgba(45, 37, 32, 0.08);
+}
+
+.expense-action-button.paid {
+  border-color: rgba(46, 139, 87, 0.28);
+  background: rgba(46, 139, 87, 0.08);
+  color: #2e8b57;
+}
+
+.expense-action-button.danger:hover {
+  background: rgba(161, 34, 45, 0.06);
+}
+
+/* ===== Área expandida ===== */
+
+.expense-installments-table-wrapper {
+  width: 100%;
+  margin-top: 18px;
+  overflow-x: auto;
+  border: 1px solid rgba(45, 37, 32, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.expense-installments-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.expense-installments-table th,
+.expense-installments-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(45, 37, 32, 0.06);
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.expense-installments-table th {
+  background: rgba(243, 239, 233, 0.72);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.expense-installments-table td {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.expense-installments-table th:first-child,
+.expense-installments-table td:first-child {
+  text-align: left;
+}
+
+.expense-installments-table th:nth-child(3),
+.expense-installments-table td:nth-child(3) {
+  text-align: right;
+}
+
+.expense-installments-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.expense-installments-table tbody tr:hover {
+  background: rgba(161, 34, 45, 0.035);
+}
+
+.expense-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.expense-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(45, 37, 32, 0.06);
+}
+
+.expense-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.expense-row strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.expense-row span {
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.expense-notes {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(45, 37, 32, 0.08);
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ===== Pagamento por participante ===== */
+
+.expense-participant-payment {
+  width: 100%;
+  min-width: 76px;
+  padding: 6px 8px;
+  border: 1px solid rgba(45, 37, 32, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--color-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font: inherit;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.expense-participant-payment > span {
+  color: var(--color-santiago-red);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.expense-participant-payment small {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.expense-participant-payment:hover {
+  transform: translateY(-1px);
+  border-color: rgba(161, 34, 45, 0.32);
+  box-shadow: 0 4px 10px rgba(45, 37, 32, 0.08);
+}
+
+.expense-participant-payment.paid {
+  border-color: rgba(46, 139, 87, 0.28);
+  background: rgba(46, 139, 87, 0.1);
+  color: #2e8b57;
+}
+
+.expense-participant-payment.paid > span {
+  color: #2e8b57;
+}
+
+.expense-participant-payment:focus-visible {
+  outline: none;
+  border-color: var(--color-santiago-red);
+  box-shadow: 0 0 0 3px rgba(161, 34, 45, 0.1);
+}
+
+/* ===== Responsividade ===== */
+
+@media (max-width: 700px) {
+  .expense-card {
+    padding: 16px;
+  }
+
+  .expense-card-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  .expense-card-title-group h3 {
+    font-size: 19px;
+  }
+
+  .expense-value {
+    font-size: 24px;
+  }
+
+  .expense-date {
+    font-size: 13px;
+  }
+
+  .expense-payer > span {
+    font-size: 14px;
+  }
+
+  .expense-payer > strong {
+    font-size: 13px;
+  }
+
+  .expense-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .expense-row span {
+    text-align: left;
+  }
+
+  .expense-installments-table-wrapper {
+    margin-top: 14px;
+  }
+
+  .expense-installments-table {
+    min-width: 590px;
+  }
+
+  .expense-installments-table th,
+  .expense-installments-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .expense-participant-payment {
+    min-width: 70px;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .expense-participant-payment small {
+    font-size: 10px;
+  }
+}

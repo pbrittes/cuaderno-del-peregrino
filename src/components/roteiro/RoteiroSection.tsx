@@ -2,12 +2,16 @@ import { useState } from 'react'
 
 import type { RoteiroItem } from '../../data/roteiroStore'
 import { RoteiroCard } from './RoteiroCard'
+import { RoteiroForm } from './RoteiroForm'
 
 type RoteiroSectionProps = {
   items: RoteiroItem[]
   loading: boolean
   error: string | null
   onEdit: (item: RoteiroItem) => void
+  editingItem?: RoteiroItem | null
+  onSaveEdit?: Parameters<typeof RoteiroForm>[0]['onSave']
+  onCancelEdit?: () => void
   onDelete: (itemId: string) => void
   onComplete?: (itemId: string) => void
   onReopen?: (itemId: string) => void
@@ -18,6 +22,9 @@ export function RoteiroSection({
   loading,
   error,
   onEdit,
+  editingItem,
+  onSaveEdit,
+  onCancelEdit,
   onDelete,
   onComplete,
   onReopen,
@@ -99,16 +106,31 @@ export function RoteiroSection({
       {plannedItems.length > 0 ? (
         <div className="roteiro-list">
           {plannedItems.map((item) => (
-            <RoteiroCard
-              key={item.id}
-              item={item}
-              dayNumber={
-                dayNumbers.get(item.id) ?? 1
-              }
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onComplete={onComplete}
-            />
+            <div key={item.id}>
+              <RoteiroCard
+                item={item}
+                dayNumber={
+                  dayNumbers.get(item.id) ?? 1
+                }
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onComplete={onComplete}
+              />
+
+              {editingItem?.id === item.id &&
+                onSaveEdit &&
+                onCancelEdit && (
+                  <div className="roteiro-form-card">
+                    <h2>Editar dia do roteiro</h2>
+
+                    <RoteiroForm
+                      item={editingItem}
+                      onSave={onSaveEdit}
+                      onCancel={onCancelEdit}
+                    />
+                  </div>
+                )}
+            </div>
           ))}
         </div>
       ) : (
@@ -153,16 +175,31 @@ export function RoteiroSection({
           {historyOpen && (
             <div className="roteiro-history-list">
               {completedItems.map((item) => (
-                <RoteiroCard
-                  key={item.id}
-                  item={item}
-                  dayNumber={
-                    dayNumbers.get(item.id) ?? 1
-                  }
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onReopen={onReopen}
-                />
+                <div key={item.id}>
+                  <RoteiroCard
+                    item={item}
+                    dayNumber={
+                      dayNumbers.get(item.id) ?? 1
+                    }
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onReopen={onReopen}
+                  />
+
+                  {editingItem?.id === item.id &&
+                    onSaveEdit &&
+                    onCancelEdit && (
+                      <div className="roteiro-form-card">
+                        <h2>Editar dia do roteiro</h2>
+
+                        <RoteiroForm
+                          item={editingItem}
+                          onSave={onSaveEdit}
+                          onCancel={onCancelEdit}
+                        />
+                      </div>
+                    )}
+                </div>
               ))}
             </div>
           )}

@@ -4,7 +4,10 @@ import type {
   ExpenseCategory,
   Pilgrim,
 } from '../../data/financas'
-import { expenseCategories, pilgrims } from '../../data/financas'
+import {
+  expenseCategories,
+  pilgrims,
+} from '../../data/financas'
 
 type ExpenseFormData = Omit<Expense, 'id'>
 
@@ -32,14 +35,36 @@ export function ExpenseForm({
   onSave,
   onCancel,
 }: ExpenseFormProps) {
-  function toggleParticipant(pilgrim: Pilgrim) {
-    if (form.participants.includes(pilgrim)) {
+  const installmentCount = form.installmentCount ?? 1
+
+  const competence =
+    form.competence ||
+    form.date.slice(0, 7)
+
+  const isInstallment = installmentCount > 1
+
+  function toggleParticipant(
+    pilgrim: Pilgrim,
+  ) {
+    if (
+      form.participants.includes(
+        pilgrim,
+      )
+    ) {
       onChange(
         'participants',
-        form.participants.filter((item) => item !== pilgrim),
+        form.participants.filter(
+          (item) => item !== pilgrim,
+        ),
       )
     } else {
-      onChange('participants', [...form.participants, pilgrim])
+      onChange(
+        'participants',
+        [
+          ...form.participants,
+          pilgrim,
+        ],
+      )
     }
   }
 
@@ -47,9 +72,15 @@ export function ExpenseForm({
     <div className="finance-form">
       <label className="finance-field">
         <span>Descrição da despesa</span>
+
         <input
           value={form.title}
-          onChange={(event) => onChange('title', event.target.value)}
+          onChange={(event) =>
+            onChange(
+              'title',
+              event.target.value,
+            )
+          }
           placeholder="Jantar, hospedagem, táxi..."
           autoFocus
         />
@@ -57,17 +88,27 @@ export function ExpenseForm({
 
       <label className="finance-field">
         <span>Categoria</span>
+
         <select
           value={form.category}
           onChange={(event) =>
-            onChange('category', event.target.value as ExpenseCategory)
+            onChange(
+              'category',
+              event.target
+                .value as ExpenseCategory,
+            )
           }
         >
-          {expenseCategories.map((category) => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
-          ))}
+          {expenseCategories.map(
+            (category) => (
+              <option
+                key={category.value}
+                value={category.value}
+              >
+                {category.label}
+              </option>
+            ),
+          )}
         </select>
       </label>
 
@@ -79,13 +120,24 @@ export function ExpenseForm({
         }
       >
         <label className="finance-field">
-          <span>Valor</span>
+          <span>
+            {isInstallment
+              ? 'Valor total'
+              : 'Valor'}
+          </span>
+
           <input
             type="number"
+            min="0"
             step="0.01"
             value={form.amount}
             onChange={(event) =>
-              onChange('amount', Number(event.target.value))
+              onChange(
+                'amount',
+                Number(
+                  event.target.value,
+                ),
+              )
             }
             placeholder="0,00"
           />
@@ -93,26 +145,45 @@ export function ExpenseForm({
 
         <label className="finance-field">
           <span>Moeda</span>
+
           <select
             value={form.currency}
             onChange={(event) =>
-              onChange('currency', event.target.value as Currency)
+              onChange(
+                'currency',
+                event.target
+                  .value as Currency,
+              )
             }
           >
-            <option value="BRL">Real (R$)</option>
-            <option value="EUR">Euro (€)</option>
+            <option value="BRL">
+              Real (R$)
+            </option>
+
+            <option value="EUR">
+              Euro (€)
+            </option>
           </select>
         </label>
 
         {form.currency === 'EUR' && (
           <label className="finance-field">
-            <span>Cotação utilizada</span>
+            <span>
+              Cotação utilizada
+            </span>
+
             <input
               type="number"
+              min="0"
               step="0.0001"
               value={form.exchangeRate}
               onChange={(event) =>
-                onChange('exchangeRate', Number(event.target.value))
+                onChange(
+                  'exchangeRate',
+                  Number(
+                    event.target.value,
+                  ),
+                )
               }
               placeholder="6,45"
             />
@@ -122,27 +193,98 @@ export function ExpenseForm({
 
       <div className="finance-form-row">
         <label className="finance-field">
+          <span>
+            Quantidade de parcelas
+          </span>
+
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={installmentCount}
+            disabled={isEditing}
+            onChange={(event) =>
+              onChange(
+                'installmentCount',
+                Math.max(
+                  1,
+                  Math.trunc(
+                    Number(
+                      event.target.value,
+                    ),
+                  ) || 1,
+                ),
+              )
+            }
+          />
+        </label>
+
+        <label className="finance-field">
+          <span>
+            {isInstallment
+              ? 'Mês da primeira parcela'
+              : 'Competência'}
+          </span>
+
+          <input
+            type="month"
+            value={competence}
+            onChange={(event) =>
+              onChange(
+                'competence',
+                event.target.value,
+              )
+            }
+          />
+        </label>
+      </div>
+
+      {isEditing && isInstallment && (
+        <p className="finance-installment-edit-info">
+          A edição será aplicada à compra inteira e às{' '}
+          {installmentCount} parcelas.
+        </p>
+      )}
+
+      <div className="finance-form-row">
+        <label className="finance-field">
           <span>Pago por</span>
+
           <select
             value={form.paidBy}
             onChange={(event) =>
-              onChange('paidBy', event.target.value as Pilgrim)
+              onChange(
+                'paidBy',
+                event.target
+                  .value as Pilgrim,
+              )
             }
           >
-            {pilgrims.map((pilgrim) => (
-              <option key={pilgrim} value={pilgrim}>
-                {pilgrim}
-              </option>
-            ))}
+            {pilgrims.map(
+              (pilgrim) => (
+                <option
+                  key={pilgrim}
+                  value={pilgrim}
+                >
+                  {pilgrim}
+                </option>
+              ),
+            )}
           </select>
         </label>
 
         <label className="finance-field">
           <span>Data</span>
+
           <input
             type="date"
             value={form.date}
-            onChange={(event) => onChange('date', event.target.value)}
+            onChange={(event) =>
+              onChange(
+                'date',
+                event.target.value,
+              )
+            }
           />
         </label>
       </div>
@@ -151,42 +293,68 @@ export function ExpenseForm({
         <span>Participantes</span>
 
         <div className="participants-chips">
-          {pilgrims.map((pilgrim) => (
-            <label
-              key={pilgrim}
-              className={
-                form.participants.includes(pilgrim)
-                  ? 'participant-chip active'
-                  : 'participant-chip'
-              }
-            >
-              <input
-                type="checkbox"
-                checked={form.participants.includes(pilgrim)}
-                onChange={() => toggleParticipant(pilgrim)}
-              />
+          {pilgrims.map(
+            (pilgrim) => (
+              <label
+                key={pilgrim}
+                className={
+                  form.participants.includes(
+                    pilgrim,
+                  )
+                    ? 'participant-chip active'
+                    : 'participant-chip'
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={form.participants.includes(
+                    pilgrim,
+                  )}
+                  onChange={() =>
+                    toggleParticipant(
+                      pilgrim,
+                    )
+                  }
+                />
 
-              {pilgrim}
-            </label>
-          ))}
+                {pilgrim}
+              </label>
+            ),
+          )}
         </div>
       </div>
 
       <label className="finance-field">
         <span>Observações</span>
+
         <textarea
           value={form.notes}
-          onChange={(event) => onChange('notes', event.target.value)}
+          onChange={(event) =>
+            onChange(
+              'notes',
+              event.target.value,
+            )
+          }
           placeholder="Local, comprovante, observações da despesa..."
         />
       </label>
 
       <div className="finance-form-actions">
-        <button type="button" onClick={onSave}>
-          {isEditing ? 'Salvar edição' : 'Salvar despesa'}
+        <button
+          type="button"
+          onClick={onSave}
+        >
+          {isEditing
+            ? 'Salvar compra'
+            : installmentCount > 1
+              ? 'Gerar parcelas'
+              : 'Salvar despesa'}
         </button>
 
-        <button type="button" onClick={onCancel}>
+        <button
+          type="button"
+          onClick={onCancel}
+        >
           Cancelar
         </button>
       </div>

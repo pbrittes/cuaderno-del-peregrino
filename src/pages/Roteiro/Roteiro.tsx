@@ -47,7 +47,7 @@ export function Roteiro() {
 
   function handleEdit(item: RoteiroItem) {
     setEditingItem(item)
-    setFormOpen(true)
+    setFormOpen(false)
   }
 
   function handleSave(
@@ -88,16 +88,12 @@ export function Roteiro() {
         </p>
       </header>
 
-      {formOpen && (
+      {formOpen && !editingItem && (
         <div className="roteiro-form-card">
-          <h2>
-            {editingItem
-              ? 'Editar dia do roteiro'
-              : 'Novo dia do roteiro'}
-          </h2>
+          <h2>Novo dia do roteiro</h2>
 
           <RoteiroForm
-            item={editingItem}
+            item={null}
             onSave={handleSave}
             onCancel={closeForm}
           />
@@ -108,6 +104,9 @@ export function Roteiro() {
         items={items}
         loading={loading}
         error={error}
+        editingItem={editingItem}
+        onSaveEdit={handleSave}
+        onCancelEdit={closeForm}
         onEdit={handleEdit}
         onDelete={deleteItem}
         onComplete={completeItem}
