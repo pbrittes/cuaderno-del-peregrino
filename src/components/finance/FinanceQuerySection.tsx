@@ -28,7 +28,6 @@ export type ExpenseSortOption =
 export type SettlementStatusFilter =
   | 'all'
   | 'pending'
-  | 'partial'
   | 'settled'
 
 export type SettlementSortOption =
@@ -102,6 +101,7 @@ type FinanceQuerySectionProps = {
   setSettlementSortOption?: Dispatch<
     SetStateAction<SettlementSortOption>
   >
+
 }
 
 export function FinanceQuerySection({
@@ -141,9 +141,7 @@ export function FinanceQuerySection({
   const [
     localSettlementStatusFilter,
     setLocalSettlementStatusFilter,
-  ] = useState<SettlementStatusFilter>(
-    'all',
-  )
+  ] = useState<SettlementStatusFilter>('all')
 
   const [
     localSettlementSortOption,
@@ -440,6 +438,30 @@ export function FinanceQuerySection({
           <div className="finance-filters">
             <div className="finance-filters-grid">
               <label className="finance-field">
+                <span>Data inicial</span>
+
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(event) =>
+                    setStartDate(event.target.value)
+                  }
+                />
+              </label>
+
+              <label className="finance-field">
+                <span>Data final</span>
+
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(event) =>
+                    setEndDate(event.target.value)
+                  }
+                />
+              </label>
+
+              <label className="finance-field">
                 <span>Quem paga</span>
 
                 <select
@@ -525,9 +547,6 @@ export function FinanceQuerySection({
                     Pendentes
                   </option>
 
-                  <option value="partial">
-                    Parciais
-                  </option>
 
                   <option value="settled">
                     Concluídos
@@ -569,6 +588,7 @@ export function FinanceQuerySection({
             </div>
           </div>
         )}
+
       </div>
     </section>
   )

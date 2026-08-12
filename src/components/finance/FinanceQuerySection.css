@@ -138,6 +138,79 @@
   background: #fff;
 }
 
+.finance-query-results {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.finance-query-list {
+  display: grid;
+  gap: 12px;
+}
+
+.finance-query-result-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(45, 37, 32, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 7px 18px rgba(45, 37, 32, 0.045);
+}
+
+.finance-query-result-card > div {
+  min-width: 0;
+}
+
+.finance-query-result-card > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.finance-query-result-card > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  text-align: right;
+}
+
+.finance-query-result-card strong {
+  color: var(--color-ink);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.finance-query-result-card > div:first-child > strong {
+  overflow-wrap: anywhere;
+}
+
+.finance-query-result-card p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.finance-query-result-card span {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.finance-query-result-card > strong,
+.finance-query-result-card > div:last-child > strong {
+  color: var(--color-santiago-red);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
 .finance-query-placeholder {
   padding: 24px;
   border: 1px dashed rgba(45, 37, 32, 0.14);
@@ -175,6 +248,15 @@
     grid-template-columns: 1fr;
     gap: 16px;
   }
+
+  .finance-query-list {
+    gap: 10px;
+  }
+
+  .finance-query-result-card {
+    gap: 16px;
+    padding: 15px 16px;
+  }
 }
 
 @media (max-width: 460px) {
@@ -184,5 +266,28 @@
 
   .finance-query-option {
     padding: 10px 13px;
+  }
+
+  .finance-query-result-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .finance-query-result-card > div:last-child {
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: space-between;
+    justify-items: stretch;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .finance-query-result-card > strong {
+    justify-self: start;
+  }
+
+  .finance-query-result-card > div:last-child > strong {
+    text-align: right;
   }
 }

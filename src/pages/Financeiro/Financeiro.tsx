@@ -8,6 +8,7 @@ import {
   FinanceQuerySection,
   type ExpenseSortOption,
   type FinanceQueryType,
+  type SettlementSortOption,
 } from '../../components/finance/FinanceQuerySection'
 import { FinanceSummaryCard } from '../../components/finance/FinanceSummaryCard'
 import { SettlementsSection } from '../../components/finance/SettlementsSection'
@@ -116,6 +117,25 @@ export function Financeiro() {
     useState<Pilgrim | 'all'>('all')
   const [sortOption, setSortOption] =
     useState<ExpenseSortOption>('newest')
+
+  const [
+    settlementFromFilter,
+    setSettlementFromFilter,
+  ] = useState<Pilgrim | 'all'>('all')
+  const [
+    settlementToFilter,
+    setSettlementToFilter,
+  ] = useState<Pilgrim | 'all'>('all')
+  const [
+    settlementStatusFilter,
+    setSettlementStatusFilter,
+  ] = useState<
+    'all' | 'pending' | 'settled'
+  >('all')
+  const [
+    settlementSortOption,
+    setSettlementSortOption,
+  ] = useState<SettlementSortOption>('highest')
 
   const {
     expenses,
@@ -386,6 +406,14 @@ export function Financeiro() {
             <SettlementsSection
               expenses={expenses}
               settlements={settlements}
+              query={{
+                startDate,
+                endDate,
+                fromFilter: settlementFromFilter,
+                toFilter: settlementToFilter,
+                statusFilter: settlementStatusFilter,
+                sortOption: settlementSortOption,
+              }}
               addSettlement={addSettlement}
               updateSettlement={
                 updateSettlement
@@ -422,6 +450,30 @@ export function Financeiro() {
               }
               sortOption={sortOption}
               setSortOption={setSortOption}
+              settlementFromFilter={
+                settlementFromFilter
+              }
+              setSettlementFromFilter={
+                setSettlementFromFilter
+              }
+              settlementToFilter={
+                settlementToFilter
+              }
+              setSettlementToFilter={
+                setSettlementToFilter
+              }
+              settlementStatusFilter={
+                settlementStatusFilter
+              }
+              setSettlementStatusFilter={
+                setSettlementStatusFilter
+              }
+              settlementSortOption={
+                settlementSortOption
+              }
+              setSettlementSortOption={
+                setSettlementSortOption
+              }
             />
           </section>
         </>

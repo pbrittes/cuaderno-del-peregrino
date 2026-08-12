@@ -15,12 +15,13 @@ import { DeleteIcon, EditIcon } from '../icons/AppIcons'
 type CreateSettlementInput = Omit<Settlement, 'id'>
 
 export type SettlementQuery = {
+  startDate?: string
+  endDate?: string
   fromFilter: Pilgrim | 'all'
   toFilter: Pilgrim | 'all'
   statusFilter:
     | 'all'
     | 'pending'
-    | 'partial'
     | 'settled'
   sortOption:
     | 'highest'
@@ -192,12 +193,22 @@ function getPaymentsForDebt(
 export function SettlementsSection({
   expenses,
   settlements = [],
+  query,
   addSettlement,
   updateSettlement,
   deleteSettlement,
 }: SettlementsSectionProps) {
   const calculatedSettlements =
     calculateSettlements(expenses)
+
+  const {
+    startDate = '',
+    endDate = '',
+    fromFilter = 'all',
+    toFilter = 'all',
+    statusFilter = 'all',
+    sortOption = 'highest',
+  } = query ?? {}
 
   const [selectedDebt, setSelectedDebt] =
     useState<SettlementDebt | null>(null)
@@ -271,6 +282,182 @@ export function SettlementsSection({
     [calculatedSettlements, settlements],
   )
 
+  const visibleSettlementSummaries = useMemo(() => {
+    const filteredSummaries = settlementSummaries.filter(
+      (summary) => {
+        const { debt, payments, settled } = summary
+
+        if (
+          fromFilter !== 'all' &&
+          debt.from !== fromFilter
+        ) {
+          return false
+        }
+
+        if (
+          toFilter !== 'all' &&
+          debt.to !== toFilter
+        ) {
+          return false
+        }
+
+        const isPending = !settled
+
+        if (
+          statusFilter === 'pending' &&
+          !isPending
+        ) {
+          return false
+        }
+
+        if (
+          statusFilter === 'settled' &&
+          !settled
+        ) {
+          return false
+        }
+
+        if (startDate || endDate) {
+          const hasPaymentInPeriod = payments.some(
+            (payment) => {
+              if (
+                startDate &&
+                payment.date < startDate
+              ) {
+                return false
+              }
+
+              if (
+                endDate &&
+                payment.date > endDate
+              ) {
+                return false
+              }
+
+              return true
+            },
+          )
+
+          if (!hasPaymentInPeriod) {
+            return false
+          }
+        }
+
+        return true
+      },
+    )
+
+    return [...filteredSummaries].sort((a, b) => {
+      if (sortOption === 'lowest') {
+        return a.debt.amount - b.debt.amount
+      }
+
+      if (sortOption === 'payer') {
+        return (
+          a.debt.from.localeCompare(b.debt.from) ||
+          a.debt.to.localeCompare(b.debt.to)
+        )
+      }
+
+      if (sortOption === 'receiver') {
+        return (
+          a.debt.to.localeCompare(b.debt.to) ||
+          a.debt.from.localeCompare(b.debt.from)
+        )
+      }
+
+      return b.debt.amount - a.debt.amount
+    })
+  }, [
+    settlementSummaries,
+    startDate,
+    endDate,
+    fromFilter,
+    toFilter,
+    statusFilter,
+    sortOption,
+  ])
+
+  const visiblePendingSettlements = useMemo(() => {
+    if (
+      statusFilter === 'settled' ||
+      startDate ||
+      endDate
+    ) {
+      return []
+    }
+
+    return pendingSettlements
+      .filter((settlement) => {
+        if (
+          fromFilter !== 'all' &&
+          settlement.from !== fromFilter
+        ) {
+          return false
+        }
+
+        if (
+          toFilter !== 'all' &&
+          settlement.to !== toFilter
+        ) {
+          return false
+        }
+
+        const relatedSummary =
+          settlementSummaries.find(
+            (summary) =>
+              summary.debt.from === settlement.from &&
+              summary.debt.to === settlement.to,
+          )
+
+        if (!relatedSummary) {
+          return statusFilter === 'all'
+        }
+
+        const isPending =
+          !relatedSummary.settled
+
+        if (
+          statusFilter === 'pending' &&
+          !isPending
+        ) {
+          return false
+        }
+
+        return true
+      })
+      .sort((a, b) => {
+        if (sortOption === 'lowest') {
+          return a.amount - b.amount
+        }
+
+        if (sortOption === 'payer') {
+          return (
+            a.from.localeCompare(b.from) ||
+            a.to.localeCompare(b.to)
+          )
+        }
+
+        if (sortOption === 'receiver') {
+          return (
+            a.to.localeCompare(b.to) ||
+            a.from.localeCompare(b.from)
+          )
+        }
+
+        return b.amount - a.amount
+      })
+  }, [
+    pendingSettlements,
+    settlementSummaries,
+    startDate,
+    endDate,
+    fromFilter,
+    toFilter,
+    statusFilter,
+    sortOption,
+  ])
+
   const orphanSettlements = useMemo(() => {
     const activePairs = new Set(
       calculatedSettlements.map((debt) =>
@@ -288,6 +475,77 @@ export function SettlementsSection({
         ),
     )
   }, [calculatedSettlements, settlements])
+
+  const visibleOrphanSettlements = useMemo(() => {
+    if (
+      statusFilter !== 'all' &&
+      statusFilter !== 'pending'
+    ) {
+      return []
+    }
+
+    return orphanSettlements
+      .filter((payment) => {
+        if (
+          fromFilter !== 'all' &&
+          payment.from !== fromFilter
+        ) {
+          return false
+        }
+
+        if (
+          toFilter !== 'all' &&
+          payment.to !== toFilter
+        ) {
+          return false
+        }
+
+        if (
+          startDate &&
+          payment.date < startDate
+        ) {
+          return false
+        }
+
+        if (
+          endDate &&
+          payment.date > endDate
+        ) {
+          return false
+        }
+
+        return true
+      })
+      .sort((a, b) => {
+        if (sortOption === 'lowest') {
+          return a.amount - b.amount
+        }
+
+        if (sortOption === 'payer') {
+          return (
+            a.from.localeCompare(b.from) ||
+            a.to.localeCompare(b.to)
+          )
+        }
+
+        if (sortOption === 'receiver') {
+          return (
+            a.to.localeCompare(b.to) ||
+            a.from.localeCompare(b.from)
+          )
+        }
+
+        return b.amount - a.amount
+      })
+  }, [
+    orphanSettlements,
+    startDate,
+    endDate,
+    fromFilter,
+    toFilter,
+    statusFilter,
+    sortOption,
+  ])
 
   function resetForm() {
     setSelectedDebt(null)
@@ -466,9 +724,15 @@ export function SettlementsSection({
             Todas as contas estão acertadas. 🎉
           </p>
         </div>
+      ) : visiblePendingSettlements.length === 0 ? (
+        <div className="empty-state">
+          <p>
+            Nenhum acerto pendente encontrado com estes filtros.
+          </p>
+        </div>
       ) : (
         <div className="expenses-list settlements-balance-list">
-          {pendingSettlements.map((settlement) => (
+          {visiblePendingSettlements.map((settlement) => (
             <article
               key={`${settlement.from}-${settlement.to}`}
               className="expense-placeholder settlement-balance-card"
@@ -496,9 +760,9 @@ export function SettlementsSection({
         </div>
       )}
 
-      {settlementSummaries.length > 0 && (
+      {visibleSettlementSummaries.length > 0 && (
         <div className="expenses-list settlement-groups">
-          {settlementSummaries.map(
+          {visibleSettlementSummaries.map(
             ({
               debt,
               payments,
@@ -791,9 +1055,9 @@ export function SettlementsSection({
       )}
 
 
-      {orphanSettlements.length > 0 && (
+      {visibleOrphanSettlements.length > 0 && (
         <div className="expenses-list settlement-groups">
-          {orphanSettlements.map((payment) => (
+          {visibleOrphanSettlements.map((payment) => (
             <article
               key={payment.id}
               className="expense-placeholder settlement-group-card settlement-group-card-pending"
