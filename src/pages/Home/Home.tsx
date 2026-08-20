@@ -14,7 +14,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { useAuth } from '../../contexts/AuthContext'
 import { useExpedition } from '../../contexts/ExpeditionContext'
 
-import { agendaEvents } from '../../data/agenda'
+import { useAgendaStore } from '../../data/agendaStore'
 import { useBackpackItems } from '../../data/backpackStore'
 import {
   getDaysUntilDeparture,
@@ -92,6 +92,11 @@ export function Home() {
   const { user } = useAuth()
   const { expedition } = useExpedition()
 
+  const { events: agendaEvents } = useAgendaStore({
+    userId: user?.id,
+    expeditionId: expedition?.id,
+  })
+
   const days = getDaysUntilDeparture()
   const nextEvent = getNextEvent(agendaEvents)
 
@@ -115,6 +120,7 @@ export function Home() {
     toggleMission,
     createMission,
     updateMission,
+    removeMission,
   } = useMissionStore({
     userId: user?.id,
     expeditionId: expedition?.id,
@@ -141,8 +147,17 @@ export function Home() {
     setMissionToComplete,
   ] = useState<Mission | null>(null)
 
+  const [
+    missionToRemove,
+    setMissionToRemove,
+  ] = useState<Mission | null>(null)
+
   const nextMissions = missions.filter(
     (mission) => mission.status !== 'done',
+  )
+
+  const completedMissions = missions.filter(
+    (mission) => mission.status === 'done',
   )
 
   const backpackStatus = useMemo(() => {
@@ -226,6 +241,15 @@ export function Home() {
 
     toggleMission(missionToComplete.id)
     setMissionToComplete(null)
+  }
+
+  function handleConfirmMissionRemove() {
+    if (!missionToRemove) {
+      return
+    }
+
+    removeMission(missionToRemove.id)
+    setMissionToRemove(null)
   }
 
   return (
@@ -395,6 +419,17 @@ export function Home() {
                   >
                     ✓
                   </button>
+
+                  <button
+                    type="button"
+                    className="mission-edit-button"
+                    onClick={() =>
+                      setMissionToRemove(mission)
+                    }
+                    title="Excluir missão"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))
@@ -454,6 +489,55 @@ export function Home() {
             </div>
           )}
         </section>
+
+        {completedMissions.length > 0 && (
+          <section className="missions-card missions-history-card">
+            <div className="missions-header">
+              <p className="eyebrow">Histórico</p>
+            </div>
+
+            {completedMissions.map((mission) => (
+              <div
+                className="mission-row"
+                key={mission.id}
+              >
+                <div>
+                  <strong>{mission.title}</strong>
+
+                  <small>
+                    {getMissionCategoryLabel(
+                      mission.category,
+                    )}
+                  </small>
+                </div>
+
+                <div className="mission-actions">
+                  <button
+                    type="button"
+                    className="mission-done-button"
+                    onClick={() =>
+                      toggleMission(mission.id)
+                    }
+                    title="Reabrir missão"
+                  >
+                    ↺
+                  </button>
+
+                  <button
+                    type="button"
+                    className="mission-edit-button"
+                    onClick={() =>
+                      setMissionToRemove(mission)
+                    }
+                    title="Excluir missão"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
 
       <ConfirmDialog
@@ -471,6 +555,24 @@ export function Home() {
         }
         onCancel={() =>
           setMissionToComplete(null)
+        }
+      />
+
+      <ConfirmDialog
+        open={Boolean(missionToRemove)}
+        title="Excluir missão?"
+        message={
+          missionToRemove
+            ? `A missão "${missionToRemove.title}" será excluída definitivamente.`
+            : ''
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={
+          handleConfirmMissionRemove
+        }
+        onCancel={() =>
+          setMissionToRemove(null)
         }
       />
     </main>

@@ -145,6 +145,11 @@ button { font: inherit; }
 .backpack-card { grid-area: backpack; }
 .missions-card { grid-area: missions; }
 
+.missions-history-card {
+  grid-area: auto;
+  grid-column: 2;
+}
+
 .countdown-card,
 .next-event-card,
 .backpack-card,
