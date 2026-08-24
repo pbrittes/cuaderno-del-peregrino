@@ -72,6 +72,16 @@ function formatDate(date: string) {
   }).format(new Date(`${date}T00:00:00Z`))
 }
 
+function formatCompetence(competence: string) {
+  const [year, month] = competence.split('-')
+
+  if (!year || !month) {
+    return competence
+  }
+
+  return `${month}/${year}`
+}
+
 function getCurrentDate() {
   return new Date().toISOString().slice(0, 10)
 }
@@ -222,6 +232,50 @@ export function SettlementsSection({
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(getCurrentDate())
   const [notes, setNotes] = useState('')
+
+  const [
+    demonstrativeCompetence,
+    setDemonstrativeCompetence,
+  ] = useState('')
+
+  const [
+    isDemonstrativeOpen,
+    setIsDemonstrativeOpen,
+  ] = useState(false)
+
+  const availableCompetences = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          expenses
+            .map(
+              (expense) =>
+                expense.competence ||
+                expense.date.slice(0, 7),
+            )
+            .filter(Boolean),
+        ),
+      ).sort(),
+    [expenses],
+  )
+
+  const demonstrativeSettlements = useMemo(() => {
+    if (!demonstrativeCompetence) {
+      return []
+    }
+
+    const demonstrativeExpenses = expenses.filter(
+      (expense) =>
+        (
+          expense.competence ||
+          expense.date.slice(0, 7)
+        ) === demonstrativeCompetence,
+    )
+
+    return calculateSettlements(
+      demonstrativeExpenses,
+    )
+  }, [expenses, demonstrativeCompetence])
 
   const settlementSummaries = useMemo(
     () =>
@@ -759,6 +813,109 @@ export function SettlementsSection({
           ))}
         </div>
       )}
+
+      <div className="settlement-form">
+        <button
+          type="button"
+          className="finance-button finance-button-secondary"
+          onClick={() =>
+            setIsDemonstrativeOpen(
+              (current) => !current,
+            )
+          }
+          aria-expanded={isDemonstrativeOpen}
+        >
+          <span aria-hidden="true">
+            {isDemonstrativeOpen ? '▾' : '▸'}
+          </span>
+          Demonstrativo mensal
+        </button>
+
+        {isDemonstrativeOpen && (
+          <>
+            <p>
+              Valores previstos pelas despesas da competência
+              selecionada. Não considera pagamentos registrados
+              nos Acertos Financeiros.
+            </p>
+
+            <div className="settlement-form-grid">
+              <label className="settlement-form-field">
+                <span>Competência</span>
+
+                <select
+                  value={demonstrativeCompetence}
+                  onChange={(event) =>
+                    setDemonstrativeCompetence(
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="">
+                    Selecione uma competência
+                  </option>
+
+                  {availableCompetences.map(
+                    (competence) => (
+                      <option
+                        key={competence}
+                        value={competence}
+                      >
+                        {formatCompetence(competence)}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            </div>
+
+            {demonstrativeCompetence &&
+              (demonstrativeSettlements.length === 0 ? (
+                <div className="empty-state">
+                  <p>
+                    Nenhum valor previsto para esta competência.
+                  </p>
+                </div>
+              ) : (
+                <div className="expenses-list settlements-balance-list">
+                  {demonstrativeSettlements.map(
+                    (settlement) => (
+                      <article
+                        key={`demonstrative-${settlement.from}-${settlement.to}`}
+                        className="expense-placeholder settlement-balance-card"
+                      >
+                        <div className="settlement-balance-content">
+                          <div className="settlement-person settlement-person-from">
+                            <span>Quem paga</span>
+                            <strong>
+                              {settlement.from}
+                            </strong>
+                          </div>
+
+                          <div className="settlement-person settlement-person-to">
+                            <span>Quem recebe</span>
+                            <strong>
+                              {settlement.to}
+                            </strong>
+                          </div>
+
+                          <div className="settlement-balance-value">
+                            <span>Valor previsto</span>
+                            <strong className="settlement-balance-amount">
+                              {formatCurrency(
+                                settlement.amount,
+                              )}
+                            </strong>
+                          </div>
+                        </div>
+                      </article>
+                    ),
+                  )}
+                </div>
+              ))}
+          </>
+        )}
+      </div>
 
       {visibleSettlementSummaries.length > 0 && (
         <div className="expenses-list settlement-groups">
