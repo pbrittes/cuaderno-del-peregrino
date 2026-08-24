@@ -358,6 +358,29 @@ export function useFinancasStore({
     })
   }
 
+  function replaceExpenseGroup(
+    expenseIds: string[],
+    expenses: CreateExpenseInput[],
+  ) {
+    if (expenseIds.length === 0) {
+      return
+    }
+
+    const ids = new Set(expenseIds)
+    const replacementExpenses =
+      expenses.map(createExpense)
+
+    void persistFinanceData({
+      ...financeDataRef.current,
+      expenses: [
+        ...financeDataRef.current.expenses.filter(
+          (expense) => !ids.has(expense.id),
+        ),
+        ...replacementExpenses,
+      ],
+    })
+  }
+
   function setExpensePaid(
     expenseId: string,
     paid: boolean,
@@ -545,6 +568,7 @@ export function useFinancasStore({
     addExpenses,
     updateExpense,
     updateExpenses,
+    replaceExpenseGroup,
     setExpensePaid,
     setParticipantPayment,
     deleteExpense,

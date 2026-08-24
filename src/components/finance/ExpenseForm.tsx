@@ -202,7 +202,6 @@ export function ExpenseForm({
             min="1"
             step="1"
             value={installmentCount}
-            disabled={isEditing}
             onChange={(event) =>
               onChange(
                 'installmentCount',

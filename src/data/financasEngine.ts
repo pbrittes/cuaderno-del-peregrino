@@ -58,19 +58,6 @@ function getPairKey(first: Pilgrim, second: Pilgrim) {
   return [first, second].sort().join('::')
 }
 
-function hasParticipantPaid(
-  expense: Expense,
-  participant: Pilgrim,
-) {
-  const participantPayment =
-    expense.participantPayments?.[participant]
-
-  if (participantPayment) {
-    return participantPayment.paid === true
-  }
-
-  return expense.paid === true
-}
 
 function calculateCategoryTotals(expenses: Expense[]) {
   const totals: Record<ExpenseCategory, number> = {
@@ -136,15 +123,6 @@ function calculateGrossDebts(expenses: Expense[]) {
 
     for (const participant of expense.participants) {
       if (participant === expense.paidBy) {
-        continue
-      }
-
-      if (
-        hasParticipantPaid(
-          expense,
-          participant,
-        )
-      ) {
         continue
       }
 

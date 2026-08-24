@@ -23,19 +23,6 @@ function parseSettlementKey(key: string) {
   }
 }
 
-function hasParticipantPaid(
-  expense: Expense,
-  participant: Pilgrim,
-) {
-  const participantPayment =
-    expense.participantPayments?.[participant]
-
-  if (participantPayment) {
-    return participantPayment.paid === true
-  }
-
-  return expense.paid === true
-}
 
 export function calculateSettlements(
   expenses: Expense[],
@@ -54,15 +41,6 @@ export function calculateSettlements(
 
     for (const participant of expense.participants) {
       if (participant === expense.paidBy) {
-        continue
-      }
-
-      if (
-        hasParticipantPaid(
-          expense,
-          participant,
-        )
-      ) {
         continue
       }
 

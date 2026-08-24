@@ -33,6 +33,10 @@ type ExpensesSectionProps = {
   addExpenses: (expenses: ExpenseFormData[]) => void
   updateExpense: (expense: Expense) => void
   updateExpenses: (expenses: Expense[]) => void
+  replaceExpenseGroup: (
+    expenseIds: string[],
+    expenses: ExpenseFormData[],
+  ) => void
   setExpensePaid: (
     expenseId: string,
     paid: boolean,
@@ -229,6 +233,7 @@ export function ExpensesSection({
   addExpenses,
   updateExpense,
   updateExpenses,
+  replaceExpenseGroup,
   setExpensePaid,
   setParticipantPayment,
   deleteExpenses,
@@ -447,10 +452,87 @@ export function ExpensesSection({
     if (!competence) return
 
     if (editingGroup) {
-      const installmentCount = editingGroup.expenses.length
+      const originalInstallmentCount =
+        editingGroup.expenses.length
+
+      const nextInstallmentCount = Math.max(
+        1,
+        Math.trunc(
+          currentForm.installmentCount ??
+            originalInstallmentCount,
+        ),
+      )
+
+      if (
+        nextInstallmentCount !==
+        originalInstallmentCount
+      ) {
+        const installmentAmounts = splitAmount(
+          currentForm.amount,
+          nextInstallmentCount,
+        )
+
+        const installmentGroupId =
+          nextInstallmentCount > 1
+            ? editingGroup.representative
+                .installmentGroupId ??
+              createInstallmentGroupId()
+            : undefined
+
+        const replacementExpenses =
+          installmentAmounts.map(
+            (installmentAmount, index) => {
+              const installmentNumber = index + 1
+
+              return {
+                ...currentForm,
+                title:
+                  nextInstallmentCount > 1
+                    ? `${trimmedTitle} (${installmentNumber}/${nextInstallmentCount})`
+                    : trimmedTitle,
+                amount: installmentAmount,
+                amountInBRL: calculateAmountInBRL(
+                  installmentAmount,
+                  currentForm.currency,
+                  currentForm.exchangeRate,
+                ),
+                competence: addMonthsToCompetence(
+                  competence,
+                  index,
+                ),
+                installmentGroupId,
+                installmentNumber:
+                  nextInstallmentCount > 1
+                    ? installmentNumber
+                    : undefined,
+                installmentCount:
+                  nextInstallmentCount > 1
+                    ? nextInstallmentCount
+                    : undefined,
+                participantPayments: undefined,
+                paid: false,
+                paidAt: undefined,
+              }
+            },
+          )
+
+        replaceExpenseGroup(
+          editingGroup.expenses.map(
+            (expense) => expense.id,
+          ),
+          replacementExpenses,
+        )
+
+        resetForm()
+        return
+      }
+
+      const installmentCount =
+        originalInstallmentCount
 
       if (installmentCount === 1) {
-        const originalExpense = editingGroup.expenses[0]
+        const originalExpense =
+          editingGroup.expenses[0]
 
         updateExpense({
           id: originalExpense.id,

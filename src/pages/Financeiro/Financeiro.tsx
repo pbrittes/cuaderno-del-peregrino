@@ -146,6 +146,9 @@ export function Financeiro() {
     addExpenses,
     updateExpense,
     updateExpenses,
+    replaceExpenseGroup,
+    setExpensePaid,
+    setParticipantPayment,
     deleteExpense,
     deleteExpenses,
     addSettlement,
@@ -387,11 +390,14 @@ export function Financeiro() {
               updateExpenses={
                 updateExpenses
               }
-              setExpensePaid={() =>
-                undefined
+              replaceExpenseGroup={
+                replaceExpenseGroup
               }
-              setParticipantPayment={() =>
-                undefined
+              setExpensePaid={
+                setExpensePaid
+              }
+              setParticipantPayment={
+                setParticipantPayment
               }
               deleteExpense={
                 deleteExpense
