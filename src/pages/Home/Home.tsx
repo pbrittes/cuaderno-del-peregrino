@@ -377,65 +377,117 @@ export function Home() {
             </p>
           ) : (
             nextMissions.map((mission) => (
-              <div
-                className="mission-row"
-                key={mission.id}
-              >
-                <div>
-                  <strong>
-                    {mission.title}
-                  </strong>
+              <div key={mission.id}>
+                <div className="mission-row">
+                  <div>
+                    <strong>
+                      {mission.title}
+                    </strong>
 
-                  <small>
-                    {getMissionCategoryLabel(
-                      mission.category,
-                    )}
-                  </small>
+                    <small>
+                      {getMissionCategoryLabel(
+                        mission.category,
+                      )}
+                    </small>
+                  </div>
+
+                  <div className="mission-actions">
+                    <button
+                      type="button"
+                      className="mission-edit-button"
+                      onClick={() =>
+                        handleOpenEditMission(
+                          mission,
+                        )
+                      }
+                      title="Editar missão"
+                    >
+                      ✎
+                    </button>
+
+                    <button
+                      type="button"
+                      className="mission-done-button"
+                      onClick={() =>
+                        setMissionToComplete(
+                          mission,
+                        )
+                      }
+                      title="Concluir missão"
+                    >
+                      ✓
+                    </button>
+
+                    <button
+                      type="button"
+                      className="mission-edit-button"
+                      onClick={() =>
+                        setMissionToRemove(mission)
+                      }
+                      title="Excluir missão"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mission-actions">
-                  <button
-                    type="button"
-                    className="mission-edit-button"
-                    onClick={() =>
-                      handleOpenEditMission(
-                        mission,
-                      )
-                    }
-                    title="Editar missão"
-                  >
-                    ✎
-                  </button>
+                {showMissionForm &&
+                  editingMission?.id === mission.id && (
+                    <div className="mission-form">
+                      <input
+                        value={missionTitle}
+                        onChange={(event) =>
+                          setMissionTitle(
+                            event.target.value,
+                          )
+                        }
+                        placeholder="Nova missão..."
+                        autoFocus
+                      />
 
-                  <button
-                    type="button"
-                    className="mission-done-button"
-                    onClick={() =>
-                      setMissionToComplete(
-                        mission,
-                      )
-                    }
-                    title="Concluir missão"
-                  >
-                    ✓
-                  </button>
+                      <select
+                        value={missionCategory}
+                        onChange={(event) =>
+                          setMissionCategory(
+                            event.target
+                              .value as MissionCategory,
+                          )
+                        }
+                      >
+                        {missionCategories.map(
+                          (category) => (
+                            <option
+                              value={category.value}
+                              key={category.value}
+                            >
+                              {category.label}
+                            </option>
+                          ),
+                        )}
+                      </select>
 
-                  <button
-                    type="button"
-                    className="mission-edit-button"
-                    onClick={() =>
-                      setMissionToRemove(mission)
-                    }
-                    title="Excluir missão"
-                  >
-                    🗑️
-                  </button>
-                </div>
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleSaveMission}
+                        >
+                          Salvar alterações
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={resetMissionForm}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
               </div>
             ))
           )}
 
-          {showMissionForm && (
+          {showMissionForm && !editingMission && (
             <div className="mission-form">
               <input
                 value={missionTitle}
@@ -474,9 +526,7 @@ export function Home() {
                   type="button"
                   onClick={handleSaveMission}
                 >
-                  {editingMission
-                    ? 'Salvar alterações'
-                    : 'Salvar'}
+                  Salvar
                 </button>
 
                 <button
