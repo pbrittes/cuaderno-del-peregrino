@@ -124,8 +124,8 @@ export function AppLayout({
         </div>
 
         <small>Expedición Santiago 2026</small>
-        <strong>Edición IX</strong>
-        <span>Finanzas Integradas</span>
+        <strong>Edición X</strong>
+        <span>Se hace el camino al caminar</span>
       </>
     )
   }

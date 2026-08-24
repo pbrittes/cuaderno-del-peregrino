@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import type {
   Currency,
   Expense,
@@ -36,6 +38,21 @@ export function ExpenseForm({
   onCancel,
 }: ExpenseFormProps) {
   const installmentCount = form.installmentCount ?? 1
+
+  const [amountInput, setAmountInput] = useState(
+    String(form.amount),
+  )
+  const [installmentInput, setInstallmentInput] = useState(
+    String(installmentCount),
+  )
+
+  useEffect(() => {
+    setAmountInput(String(form.amount))
+  }, [form.amount])
+
+  useEffect(() => {
+    setInstallmentInput(String(installmentCount))
+  }, [installmentCount])
 
   const competence =
     form.competence ||
@@ -130,15 +147,18 @@ export function ExpenseForm({
             type="number"
             min="0"
             step="0.01"
-            value={form.amount}
-            onChange={(event) =>
-              onChange(
-                'amount',
-                Number(
-                  event.target.value,
-                ),
-              )
-            }
+            value={amountInput}
+            onChange={(event) => {
+              const nextValue = event.target.value
+              setAmountInput(nextValue)
+
+              if (nextValue !== '') {
+                onChange(
+                  'amount',
+                  Number(nextValue),
+                )
+              }
+            }}
             placeholder="0,00"
           />
         </label>
@@ -201,20 +221,23 @@ export function ExpenseForm({
             type="number"
             min="1"
             step="1"
-            value={installmentCount}
-            onChange={(event) =>
-              onChange(
-                'installmentCount',
-                Math.max(
-                  1,
-                  Math.trunc(
-                    Number(
-                      event.target.value,
-                    ),
-                  ) || 1,
-                ),
-              )
-            }
+            value={installmentInput}
+            onChange={(event) => {
+              const nextValue = event.target.value
+              setInstallmentInput(nextValue)
+
+              if (nextValue !== '') {
+                onChange(
+                  'installmentCount',
+                  Math.max(
+                    1,
+                    Math.trunc(
+                      Number(nextValue),
+                    ) || 1,
+                  ),
+                )
+              }
+            }}
           />
         </label>
 

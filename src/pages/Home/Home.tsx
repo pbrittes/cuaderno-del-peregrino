@@ -14,8 +14,11 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { useAuth } from '../../contexts/AuthContext'
 import { useExpedition } from '../../contexts/ExpeditionContext'
 
+import type { AgendaEvent } from '../../data/agenda'
 import { useAgendaStore } from '../../data/agendaStore'
 import { useBackpackItems } from '../../data/backpackStore'
+import { useRoteiroStore } from '../../data/roteiroStore'
+import { useViagemStore } from '../../data/viagemStore'
 import {
   getDaysUntilDeparture,
   getNextEvent,
@@ -73,6 +76,18 @@ function getMissionCategoryLabel(
   )
 }
 
+function joinDetails(
+  details: Array<string | undefined>,
+) {
+  return details
+    .map((detail) => detail?.trim())
+    .filter(
+      (detail): detail is string =>
+        Boolean(detail),
+    )
+    .join(' · ')
+}
+
 function formatDate(date: string) {
   return new Date(
     `${date}T12:00:00`,
@@ -97,8 +112,115 @@ export function Home() {
     expeditionId: expedition?.id,
   })
 
+  const {
+    items: roteiroItems,
+  } = useRoteiroStore({
+    userId: user?.id,
+    expeditionId: expedition?.id,
+  })
+
+  const {
+    flights,
+    transfers,
+    reservations,
+  } = useViagemStore({
+    userId: user?.id,
+    expeditionId: expedition?.id,
+  })
+
+  const roteiroEvents = roteiroItems.map(
+    (item) => ({
+      id: `roteiro-${item.id}`,
+      title: item.city,
+      date: item.date,
+      type: 'viagem' as const,
+      people: ['Pri', 'Tania', 'Andrea'] as AgendaEvent['people'],
+      status: 'pendente' as const,
+      completed: false,
+      note: joinDetails([
+        item.summary,
+        item.overnightCity
+          ? `Pernoite: ${item.overnightCity}`
+          : undefined,
+        item.notes,
+      ]),
+    }),
+  )
+
+  const flightEvents = flights.map(
+    (flight) => ({
+      id: `flight-${flight.id}`,
+      title: `${flight.origin} → ${flight.destination}`,
+      date: flight.departureDate,
+      type: 'viagem' as const,
+      people: ['Pri', 'Tania', 'Andrea'] as AgendaEvent['people'],
+      status: 'pendente' as const,
+      completed: false,
+      note: joinDetails([
+        joinDetails([
+          flight.airline,
+          flight.flightNumber,
+        ]),
+        flight.boardingTime
+          ? `Embarque ${flight.boardingTime}`
+          : undefined,
+        flight.arrivalTime
+          ? `Chegada ${flight.arrivalTime}`
+          : undefined,
+        flight.notes,
+      ]),
+    }),
+  )
+
+  const transferEvents = transfers.map(
+    (transfer) => ({
+      id: `transfer-${transfer.id}`,
+      title: `${transfer.origin} → ${transfer.destination}`,
+      date: transfer.departureDate,
+      type: 'viagem' as const,
+      people: ['Pri', 'Tania', 'Andrea'] as AgendaEvent['people'],
+      status: 'pendente' as const,
+      completed: false,
+      note: joinDetails([
+        transfer.type,
+        transfer.company,
+        transfer.departureTime
+          ? `Saída ${transfer.departureTime}`
+          : undefined,
+        transfer.arrivalTime
+          ? `Chegada ${transfer.arrivalTime}`
+          : undefined,
+        transfer.notes,
+      ]),
+    }),
+  )
+
+  const reservationEvents = reservations.map(
+    (reservation) => ({
+      id: `reservation-${reservation.id}`,
+      title: reservation.title,
+      date: reservation.date,
+      type: 'viagem' as const,
+      people: ['Pri', 'Tania', 'Andrea'] as AgendaEvent['people'],
+      status: 'pendente' as const,
+      completed: false,
+      note: joinDetails([
+        reservation.category,
+        reservation.city,
+        reservation.notes,
+      ]),
+    }),
+  )
+
   const days = getDaysUntilDeparture()
-  const nextEvent = getNextEvent(agendaEvents)
+
+  const nextEvent = getNextEvent([
+    ...agendaEvents,
+    ...roteiroEvents,
+    ...flightEvents,
+    ...transferEvents,
+    ...reservationEvents,
+  ])
 
   const NextEventIcon = nextEvent
     ? eventIcons[nextEvent.type]
